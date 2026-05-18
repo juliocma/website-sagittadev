@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terraria Inventory Editor - Deluxe</title>
     <link href="https://fonts.cdnfonts.com/css/andy" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image-more/3.5.0/dom-to-image-more.min.js"></script>
 
     <style>
         :root {
@@ -426,7 +425,7 @@
         let itemDatabase = {};
         let loadedItemsRaw = [];
 
-        // Carrega o items.json local estruturado por você
+        // Carrega o items.json local da mesma pasta
         async function loadExternalDatabase() {
             try {
                 const response = await fetch('items.json');
@@ -539,7 +538,6 @@
                     const globalIndex = loadedItemsRaw.indexOf(item);
                     const formattedCount = Number(item.count).toLocaleString('pt-BR');
 
-                    // Chamada oficial direta da Wiki para renderização na interface
                     let imageUrl = `https://terraria.wiki.gg/images/${item.name_eng.replace(/ /g, "_")}.png`;
 
                     const row = document.createElement('tr');
@@ -548,7 +546,7 @@
                     row.innerHTML = `
                     <td class="col-id text-right" contenteditable="true" data-field="id" data-index="${globalIndex}"><span class="id-badge">${item.id}</span></td>
                     <td class="col-img text-center">
-                        ${item.name_eng !== "Unknown Item" ? `<img class="item-sprite" src="${imageUrl}" alt="${item.name_eng}" onerror="this.removeAttribute('onerror'); this.style.display='none';">` : ''}
+                        ${item.name_eng !== "Unknown Item" ? `<img class="item-sprite" src="${imageUrl}" alt="${item.name_eng}" onerror="this.style.display='none';">` : ''}
                     </td>
                     <td class="col-pt" contenteditable="true" data-field="name_ptbr" data-index="${globalIndex}">
                         <span class="star">★</span><strong>${item.name_ptbr}</strong>
@@ -636,44 +634,85 @@
         document.getElementById('showFavCheck').addEventListener('change', buildSegmentedTables);
         document.getElementById('searchBox').addEventListener('input', buildSegmentedTables);
 
-        // NOVA ESTRATÉGIA COM DOM-TO-IMAGE-MORE: Encapsula em um vetor SVG nativo contornando o erro de segurança
+        // ABORDAGEM MATADORA SEM SCRIPT DE TERCEIROS:
+        // Transforma o DOM clonado em um nó XML/SVG legítimo e o extrai via Canvas nativo
         function downloadTablesImage() {
             const btn = document.getElementById('printBtnButton');
             const oldText = btn.innerText;
             btn.innerText = "Salvando...";
             btn.disabled = true;
 
-            const target = document.getElementById('tablesArea');
-            target.classList.add('hide-actions'); // Remove a coluna de ações "x" antes do print
+            const originalTarget = document.getElementById('tablesArea');
 
-            // Ajusta escala interna para manter a alta definição (Equivalente ao scale:2 do canvas)
-            const options = {
-                style: {
-                    transform: 'scale(1)',
-                    transformOrigin: 'top left'
-                },
-                bgcolor: '#1c243c',
-                width: target.offsetWidth,
-                height: target.offsetHeight
+            // Clona a árvore estruturada e remove a coluna de deletar itens "x"
+            const clone = originalTarget.cloneNode(true);
+            clone.querySelectorAll('.col-action').forEach(el => el.remove());
+
+            const width = originalTarget.offsetWidth;
+            const height = originalTarget.offsetHeight;
+
+            // Monta o invólucro do SVG injetando os estilos gráficos globais essenciais da interface
+            const svgWrapper = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+                <foreignObject width="100%" height="100%">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="
+                        font-family: 'Andy', sans-serif;
+                        color: white;
+                        background: #0f1423;
+                        padding: 10px;
+                        box-sizing: border-box;
+                    ">
+                        <style>
+                            .table-wrapper { margin-bottom: 30px; background-color: rgba(28, 32, 56, 0.9); padding: 20px 25px; border-radius: 10px; border: 4px solid #2d3b68; }
+                            .table-title { font-size: 24px; color: #daae3b; margin-bottom: 12px; text-shadow: 2px 2px 0px #000; }
+                            .table-rounded-holder { width: 100%; border-radius: 10px; overflow: hidden; border: 3px solid #3b4b7c; }
+                            table { width: 100%; border-collapse: collapse; background-color: #141929; }
+                            th, td { padding: 10px 15px; text-align: left; font-size: 20px; text-shadow: 2px 2px 0px #000; vertical-align: middle; border-bottom: 1px solid #3b4b7c; }
+                            th { background-color: #141a2e; color: #daae3b; font-size: 22px; }
+                            .id-badge { color: #8fa3db; font-family: monospace; }
+                            .item-sprite { width: 32px; height: 32px; object-fit: contain; display: block; margin: 0 auto; filter: drop-shadow(2px 2px 0px #000); image-rendering: pixelated; }
+                            .text-right { text-align: right; }
+                            .text-center { text-align: center; }
+                            .show-fav .favorited { color: #ffeb3b; background-color: rgba(218, 174, 59, 0.05); }
+                            .hide-col-id .col-id, .hide-col-img .col-img, .hide-col-pt .col-pt, .hide-col-en .col-en, .hide-col-qtd .col-qtd { display: none !important; }
+                        </style>
+                        <div class="${originalTarget.className}">
+                            ${clone.innerHTML}
+                        </div>
+                    </div>
+                </foreignObject>
+            </svg>
+        `;
+
+            // Converte a string estruturada em uma URI codificada segura
+            const svgUrl = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgWrapper);
+
+            const img = new Image();
+            img.src = svgUrl;
+
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                canvas.width = width * 2; // Força renderização dupla em alta definição
+                canvas.height = height * 2;
+                const ctx = canvas.getContext('2d');
+                ctx.scale(2, 2);
+                ctx.drawImage(img, 0, 0);
+
+                // Dispara o download da imagem nativa gerada
+                const link = document.createElement('a');
+                link.download = 'meu_inventario_terraria.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                btn.innerText = oldText;
+                btn.disabled = false;
             };
 
-            domtoimage.toPng(target, options)
-                .then(function (dataUrl) {
-                    const link = document.createElement('a');
-                    link.download = 'meu_inventario_terraria.png';
-                    link.href = dataUrl;
-                    link.click();
-
-                    target.classList.remove('hide-actions');
-                    btn.innerText = oldText;
-                    btn.disabled = false;
-                })
-                .catch(function (error) {
-                    target.classList.remove('hide-actions');
-                    alert("Erro ao exportar via engine de vetor.");
-                    btn.innerText = oldText;
-                    btn.disabled = false;
-                });
+            img.onerror = function () {
+                alert("Erro ao rasterizar a imagem estruturada nativa.");
+                btn.innerText = oldText;
+                btn.disabled = false;
+            };
         }
     </script>
 
