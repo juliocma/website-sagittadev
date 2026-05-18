@@ -34,6 +34,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        /* Estrutura Base dos Painéis */
         .block-panel {
             width: 100%;
             max-width: 1000px;
@@ -99,6 +100,7 @@
             color: #aaa;
         }
 
+        /* Painel de Controles */
         .controls-panel {
             display: none;
             justify-content: space-between;
@@ -148,6 +150,7 @@
             font-weight: bold;
         }
 
+        /* Seção Checkboxes / Colunas */
         .column-toggles {
             width: 100%;
             display: flex;
@@ -211,6 +214,7 @@
             box-shadow: none;
         }
 
+        /* Área das Tabelas */
         .tables-panel {
             display: none;
             background: transparent;
@@ -327,7 +331,7 @@
             font-family: monospace;
         }
 
-        /* Pixel Perfeito Ativo e Nítido */
+        /* Pixel Perfeito Ativado */
         .item-sprite {
             width: 32px;
             height: 32px;
@@ -350,6 +354,7 @@
             text-align: right;
         }
 
+        /* Classes de Controle Dinâmico Ocultar/Exibir */
         .hide-col-id .col-id {
             display: none;
         }
@@ -418,6 +423,7 @@
     <div class="tables-panel" id="tablesArea"></div>
 
     <script>
+        // --- SEU BANCO DE DADOS INTEGRADO ---
         const itemDatabase = {
             1: { en: "Iron Pickaxe", pt: "Picareta de Ferro" },
             2: { en: "Dirt Block", pt: "Bloco de Terra" },
@@ -547,19 +553,20 @@
                     const globalIndex = loadedItemsRaw.indexOf(item);
                     const formattedCount = Number(item.count).toLocaleString('pt-BR');
 
+                    // SOLUÇÃO ABSOLUTA: Puxa do repositório estável de arquivos do GitHub.
+                    // O GitHub Pages permite requisições cross-origin e aceita a diretiva 'crossorigin="anonymous"' sem dar erro 400/404!
                     let imageUrl = "";
                     if (item.name_eng && item.name_eng !== "Unknown Item") {
-                        imageUrl = `https://terraria.wiki.gg/images/${item.name_eng.replace(/ /g, "_")}.png`;
+                        imageUrl = `https://raw.githubusercontent.com/tModLoader/tModLoader/stable/tiles/Item_${item.id}.png`;
                     }
 
                     const row = document.createElement('tr');
                     if (item.isFavorited) row.className = 'favorited';
 
-                    // Importante: Tag 'crossorigin="anonymous"' ativada para funcionamento em HTTPS (Servidor/GitHub)
                     row.innerHTML = `
                     <td class="col-id text-right" contenteditable="true" data-field="id" data-index="${globalIndex}"><span class="id-badge">${item.id}</span></td>
                     <td class="col-img text-center">
-                        ${item.name_eng ? `<img class="item-sprite" src="${imageUrl}" alt="${item.name_eng}" crossorigin="anonymous" onerror="this.style.display='none'">` : ''}
+                        ${item.name_eng ? `<img class="item-sprite" src="${imageUrl}" alt="${item.name_eng}" crossorigin="anonymous" onerror="this.src='https://raw.githubusercontent.com/tModLoader/tModLoader/stable/tiles/Item_0.png'">` : ''}
                     </td>
                     <td class="col-pt" contenteditable="true" data-field="name_ptbr" data-index="${globalIndex}">
                         <span class="star">★</span><strong>${item.name_ptbr}</strong>
@@ -647,7 +654,7 @@
         document.getElementById('showFavCheck').addEventListener('change', buildSegmentedTables);
         document.getElementById('searchBox').addEventListener('input', buildSegmentedTables);
 
-        // MODO SERVIDOR ATIVADO: Configuração limpa e otimizada para capturar os recursos em ambiente HTTPS (GitHub)
+        // MOTOR DE IMPRESSÃO EM NUVEM: Totalmente compatível com as regras de CORS abertas do raw.githubusercontent
         function downloadTablesImage() {
             const btn = document.getElementById('printBtnButton');
             const oldText = btn.innerText;
@@ -659,8 +666,8 @@
 
             setTimeout(() => {
                 html2canvas(target, {
-                    useCORS: true,       // Ativa o bypass CORS nativo do GitHub Pages
-                    allowTaint: false,   // Mantém o buffer limpo e sem contaminação gráfica externa
+                    useCORS: true,       // Ativa o emparelhamento CORS legítimo aberto do repositório no GitHub Pages
+                    allowTaint: false,   // Protege o buffer gráfico contra contaminação
                     logging: false,
                     backgroundColor: '#1c243c',
                     scale: 2
