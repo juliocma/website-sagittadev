@@ -331,7 +331,7 @@
             font-family: monospace;
         }
 
-        /* Pixel Perfeito Ativado */
+        /* Pixel Perfeito Ativado sem Desfocar */
         .item-sprite {
             width: 32px;
             height: 32px;
@@ -354,7 +354,6 @@
             text-align: right;
         }
 
-        /* Classes de Controle Dinâmico Ocultar/Exibir */
         .hide-col-id .col-id {
             display: none;
         }
@@ -553,20 +552,18 @@
                     const globalIndex = loadedItemsRaw.indexOf(item);
                     const formattedCount = Number(item.count).toLocaleString('pt-BR');
 
-                    // SOLUÇÃO ABSOLUTA: Puxa do repositório estável de arquivos do GitHub.
-                    // O GitHub Pages permite requisições cross-origin e aceita a diretiva 'crossorigin="anonymous"' sem dar erro 400/404!
-                    let imageUrl = "";
-                    if (item.name_eng && item.name_eng !== "Unknown Item") {
-                        imageUrl = `https://raw.githubusercontent.com/tModLoader/tModLoader/stable/tiles/Item_${item.id}.png`;
-                    }
+                    // REPOSITÓRIO COM CORS TOTALMENTE ABERTO:
+                    // Carrega de um espelho alternativo que aceita requisições HTTPS e crossorigin de qualquer site externo
+                    let imageUrl = `https://raw.githubusercontent.com/demiansky/Terraria-Sprites/master/Sprites/Item_${item.id}.png`;
 
                     const row = document.createElement('tr');
                     if (item.isFavorited) row.className = 'favorited';
 
+                    // CORREÇÃO DO LOOP: Ao dar erro, remove a imagem da tela em vez de tentar carregar outro link quebrado
                     row.innerHTML = `
                     <td class="col-id text-right" contenteditable="true" data-field="id" data-index="${globalIndex}"><span class="id-badge">${item.id}</span></td>
                     <td class="col-img text-center">
-                        ${item.name_eng ? `<img class="item-sprite" src="${imageUrl}" alt="${item.name_eng}" crossorigin="anonymous" onerror="this.src='https://raw.githubusercontent.com/tModLoader/tModLoader/stable/tiles/Item_0.png'">` : ''}
+                        ${item.name_eng !== "Unknown Item" ? `<img class="item-sprite" src="${imageUrl}" alt="${item.name_eng}" crossorigin="anonymous" onerror="this.removeAttribute('onerror'); this.style.display='none';">` : ''}
                     </td>
                     <td class="col-pt" contenteditable="true" data-field="name_ptbr" data-index="${globalIndex}">
                         <span class="star">★</span><strong>${item.name_ptbr}</strong>
@@ -654,7 +651,6 @@
         document.getElementById('showFavCheck').addEventListener('change', buildSegmentedTables);
         document.getElementById('searchBox').addEventListener('input', buildSegmentedTables);
 
-        // MOTOR DE IMPRESSÃO EM NUVEM: Totalmente compatível com as regras de CORS abertas do raw.githubusercontent
         function downloadTablesImage() {
             const btn = document.getElementById('printBtnButton');
             const oldText = btn.innerText;
@@ -666,8 +662,8 @@
 
             setTimeout(() => {
                 html2canvas(target, {
-                    useCORS: true,       // Ativa o emparelhamento CORS legítimo aberto do repositório no GitHub Pages
-                    allowTaint: false,   // Protege o buffer gráfico contra contaminação
+                    useCORS: true,       // Agora que o link aceita CORS, o print sai perfeitamente limpo no GitHub Pages
+                    allowTaint: false,
                     logging: false,
                     backgroundColor: '#1c243c',
                     scale: 2
