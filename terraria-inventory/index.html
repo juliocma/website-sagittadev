@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terraria Inventory Editor - Deluxe</title>
     <link href="https://fonts.cdnfonts.com/css/andy" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image-more/3.5.0/dom-to-image-more.min.js"></script>
 
     <style>
         :root {
@@ -426,7 +426,7 @@
         let itemDatabase = {};
         let loadedItemsRaw = [];
 
-        // Carrega o items.json local da mesma pasta de forma limpa e rápida
+        // Carrega o items.json local estruturado por você
         async function loadExternalDatabase() {
             try {
                 const response = await fetch('items.json');
@@ -539,7 +539,7 @@
                     const globalIndex = loadedItemsRaw.indexOf(item);
                     const formattedCount = Number(item.count).toLocaleString('pt-BR');
 
-                    // Chamada limpa oficial da Wiki: Sem parâmetros indutores de segurança
+                    // Chamada oficial direta da Wiki para renderização na interface
                     let imageUrl = `https://terraria.wiki.gg/images/${item.name_eng.replace(/ /g, "_")}.png`;
 
                     const row = document.createElement('tr');
@@ -636,87 +636,44 @@
         document.getElementById('showFavCheck').addEventListener('change', buildSegmentedTables);
         document.getElementById('searchBox').addEventListener('input', buildSegmentedTables);
 
-        // ABORDAGEM DE CONVERSÃO EXCLUSIVA NO CLIQUE: 
-        // Alimenta um canvas interno com a renderização em memória direta, contornando a poluição do canvas
-        async function downloadTablesImage() {
+        // NOVA ESTRATÉGIA COM DOM-TO-IMAGE-MORE: Encapsula em um vetor SVG nativo contornando o erro de segurança
+        function downloadTablesImage() {
             const btn = document.getElementById('printBtnButton');
             const oldText = btn.innerText;
             btn.innerText = "Salvando...";
             btn.disabled = true;
 
-            const originalTarget = document.getElementById('tablesArea');
+            const target = document.getElementById('tablesArea');
+            target.classList.add('hide-actions'); // Remove a coluna de ações "x" antes do print
 
-            // Cria um clone oculto para processar a conversão gráfica sem interferir na visualização do usuário
-            const clone = originalTarget.cloneNode(true);
-            clone.style.position = 'absolute';
-            clone.style.top = '-9999px';
-            clone.style.left = '-9999px';
-            clone.classList.add('hide-actions'); // Remove a coluna de ações "x"
-            document.body.appendChild(clone);
+            // Ajusta escala interna para manter a alta definição (Equivalente ao scale:2 do canvas)
+            const options = {
+                style: {
+                    transform: 'scale(1)',
+                    transformOrigin: 'top left'
+                },
+                bgcolor: '#1c243c',
+                width: target.offsetWidth,
+                height: target.offsetHeight
+            };
 
-            const clonedImages = clone.querySelectorAll('.item-sprite');
-
-            // Estrutura promessas assíncronas para processar as imagens via Canvas local anônimo de cache
-            const conversionPromises = Array.from(clonedImages).map(img => {
-                return new Promise((resolve) => {
-                    if (!img.src || img.src.startsWith('data:image')) {
-                        resolve();
-                        return;
-                    }
-
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const tempImage = new Image();
-
-                    // Força o comportamento anônimo legítimo permitido pela hospedagem https do GitHub Pages/Servidor
-                    tempImage.crossOrigin = "anonymous";
-                    tempImage.src = img.src;
-
-                    tempImage.onload = function () {
-                        try {
-                            canvas.width = tempImage.naturalWidth;
-                            canvas.height = tempImage.naturalHeight;
-                            ctx.drawImage(tempImage, 0, 0);
-                            // Substitui o link bloqueado pelo buffer de dados nativo
-                            img.src = canvas.toDataURL('image/png');
-                        } catch (e) {
-                            console.log("Falha ao descriptografar pixel isolado.");
-                        }
-                        resolve();
-                    };
-
-                    tempImage.onerror = function () {
-                        resolve();
-                    };
-                });
-            });
-
-            // Aguarda a resolução gráfica de todas as linhas da tabela
-            await Promise.all(conversionPromises);
-
-            setTimeout(() => {
-                html2canvas(clone, {
-                    useCORS: false,      // Falso: Evita o estouro gráfico das requisições diretas da Wiki
-                    allowTaint: true,    // Verdadeiro: Autoriza a captura dos buffers de dados resolvidos locais
-                    logging: false,
-                    backgroundColor: '#1c243c',
-                    scale: 2             // Preserva alta definição
-                }).then(canvas => {
+            domtoimage.toPng(target, options)
+                .then(function (dataUrl) {
                     const link = document.createElement('a');
                     link.download = 'meu_inventario_terraria.png';
-                    link.href = canvas.toDataURL('image/png');
+                    link.href = dataUrl;
                     link.click();
 
-                    document.body.removeChild(clone);
+                    target.classList.remove('hide-actions');
                     btn.innerText = oldText;
                     btn.disabled = false;
-                }).catch(err => {
-                    if (document.body.contains(clone)) document.body.removeChild(clone);
-                    alert("Erro ao exportar a tabela estruturada.");
+                })
+                .catch(function (error) {
+                    target.classList.remove('hide-actions');
+                    alert("Erro ao exportar via engine de vetor.");
                     btn.innerText = oldText;
                     btn.disabled = false;
                 });
-            }, 150);
         }
     </script>
 
