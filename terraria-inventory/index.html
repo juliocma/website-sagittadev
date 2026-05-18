@@ -3,377 +3,16 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/svg+xml" href="/terraria-inventory/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terraria Inventory Editor - Deluxe</title>
+
+    <link rel="icon" type="image/svg+xml" href="/terraria-inventory/favicon.ico" />
+
     <link href="https://fonts.cdnfonts.com/css/andy" rel="stylesheet">
 
-    <style>
-        :root {
-            --bg-color: #1c243c;
-            --container-bg: rgba(28, 32, 56, 0.9);
-            --text-color: #ffffff;
-            --accent-color: #daae3b;
-            --border-color: #3b4b7c;
-            --row-hover: #2c3a63;
-            --fav-color: #ff3b3b;
-            --slot-bg: #141929;
-            --radius: 10px;
-        }
+    <link rel="stylesheet" href="style.css">
 
-        body {
-            font-family: 'Andy', 'Segoe UI', Tahoma, sans-serif;
-            font-weight: bold;
-            background: #0f1423 url('https://www.transparenttextures.com/patterns/black-thread.png');
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* Estrutura Base dos Painéis */
-        .block-panel {
-            width: 100%;
-            max-width: 1000px;
-            box-sizing: border-box;
-            background-color: var(--container-bg);
-            padding: 25px 30px;
-            border-radius: var(--radius);
-            border: 4px solid #2d3b68;
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 8px 25px rgba(0, 0, 0, 0.7);
-            margin-bottom: 25px;
-        }
-
-        h1 {
-            text-align: center;
-            color: var(--accent-color);
-            font-size: 42px;
-            margin-top: 0;
-            margin-bottom: 20px;
-            text-shadow: 3px 3px 0px #000;
-            letter-spacing: 2px;
-        }
-
-        .upload-section {
-            width: 100%;
-        }
-
-        .file-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 3px dashed var(--border-color);
-            padding: 35px 15px;
-            border-radius: var(--radius);
-            background-color: var(--slot-bg);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-shadow: 2px 2px 0px #000;
-        }
-
-        .file-box:hover {
-            border-color: var(--accent-color);
-            background-color: #192035;
-        }
-
-        .file-box.loaded {
-            border-color: #00e676;
-            background-color: #122420;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        .box-title {
-            font-size: 24px;
-            color: var(--accent-color);
-            margin-bottom: 5px;
-        }
-
-        .box-desc {
-            font-size: 16px;
-            color: #aaa;
-        }
-
-        /* Painel de Controles */
-        .controls-panel {
-            display: none;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .search-box {
-            flex: 1;
-            min-width: 250px;
-            padding: 12px 15px;
-            box-sizing: border-box;
-            background-color: var(--slot-bg);
-            border: 3px solid var(--border-color);
-            color: var(--text-color);
-            border-radius: var(--radius);
-            font-family: 'Andy', sans-serif;
-            font-size: 22px;
-            font-weight: bold;
-            text-shadow: 1px 1px 0px #000;
-        }
-
-        .search-box:focus {
-            outline: none;
-            border-color: var(--accent-color);
-        }
-
-        .block-config {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 20px;
-            text-shadow: 1px 1px 0px #000;
-        }
-
-        .block-config input {
-            width: 60px;
-            padding: 6px;
-            background-color: var(--slot-bg);
-            border: 2px solid var(--border-color);
-            color: var(--text-color);
-            border-radius: 5px;
-            font-family: 'Andy', sans-serif;
-            font-size: 18px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        /* Seção Checkboxes / Colunas */
-        .column-toggles {
-            width: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 2px dashed var(--border-color);
-            font-size: 18px;
-            text-shadow: 1px 1px 0px #000;
-        }
-
-        .toggle-title {
-            color: var(--accent-color);
-            margin-right: 5px;
-        }
-
-        .options-box {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            user-select: none;
-            cursor: pointer;
-        }
-
-        .options-box input {
-            cursor: pointer;
-            width: 18px;
-            height: 18px;
-            accent-color: var(--accent-color);
-            margin: 0;
-        }
-
-        .control-star {
-            color: #ffeb3b;
-            font-size: 18px;
-            line-height: 1;
-        }
-
-        .print-btn {
-            background-color: #a45224;
-            border: 3px solid #5a2810;
-            color: white;
-            padding: 8px 16px;
-            font-family: 'Andy', sans-serif;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: var(--radius);
-            cursor: pointer;
-            text-shadow: 1px 1px 0px #000;
-            box-shadow: 0 4px 0px #401a0a;
-            transition: background 0.1s;
-        }
-
-        .print-btn:hover {
-            background-color: #bd5f2b;
-        }
-
-        .print-btn:active {
-            transform: translateY(4px);
-            box-shadow: none;
-        }
-
-        /* Área das Tabelas */
-        .tables-panel {
-            display: none;
-            background: transparent;
-            border: none;
-            box-shadow: none;
-            padding: 0;
-            width: 100%;
-            max-width: 1000px;
-        }
-
-        .table-wrapper {
-            margin-bottom: 30px;
-            background-color: var(--container-bg);
-            padding: 20px 25px;
-            border-radius: var(--radius);
-            border: 4px solid #2d3b68;
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 8px 25px rgba(0, 0, 0, 0.7);
-        }
-
-        .table-title {
-            font-size: 24px;
-            color: var(--accent-color);
-            margin-bottom: 12px;
-            text-shadow: 2px 2px 0px #000;
-            letter-spacing: 1px;
-        }
-
-        .table-rounded-holder {
-            width: 100%;
-            border-radius: var(--radius);
-            overflow: hidden;
-            border: 3px solid var(--border-color);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: var(--slot-bg);
-        }
-
-        th,
-        td {
-            padding: 10px 15px;
-            text-align: left;
-            font-size: 20px;
-            text-shadow: 2px 2px 0px #000;
-            vertical-align: middle;
-        }
-
-        th {
-            background-color: #141a2e;
-            color: var(--accent-color);
-            border-bottom: 3px solid var(--border-color);
-            font-size: 22px;
-        }
-
-        td {
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover {
-            background-color: var(--row-hover);
-        }
-
-        td[contenteditable="true"] {
-            cursor: text;
-        }
-
-        td[contenteditable="true"]:focus {
-            background-color: rgba(255, 255, 255, 0.08) !important;
-            outline: none;
-        }
-
-        .delete-btn {
-            color: #ff4a4a;
-            cursor: pointer;
-            font-size: 22px;
-            text-align: center;
-            user-select: none;
-            transition: transform 0.1s;
-        }
-
-        .delete-btn:hover {
-            color: #ff1a1a;
-            transform: scale(1.2);
-        }
-
-        .hide-actions .col-action {
-            display: none !important;
-        }
-
-        .star {
-            display: none;
-        }
-
-        .show-fav .favorited {
-            color: #ffeb3b;
-            background-color: rgba(218, 174, 59, 0.05);
-        }
-
-        .show-fav .favorited .star {
-            color: #ffeb3b;
-            margin-right: 5px;
-            font-size: 18px;
-            display: inline;
-        }
-
-        .id-badge {
-            color: #8fa3db;
-            font-family: monospace;
-        }
-
-        /* Pixel Perfeito Ativado e Nítido */
-        .item-sprite {
-            width: 32px;
-            height: 32px;
-            object-fit: contain;
-            display: block;
-            margin: 0 auto;
-            filter: drop-shadow(2px 2px 0px #000);
-
-            image-rendering: -moz-crisp-edges;
-            image-rendering: -webkit-crisp-edges;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .text-right {
-            text-align: right;
-        }
-
-        .hide-col-id .col-id {
-            display: none;
-        }
-
-        .hide-col-img .col-img {
-            display: none;
-        }
-
-        .hide-col-pt .col-pt {
-            display: none;
-        }
-
-        .hide-col-en .col-en {
-            display: none;
-        }
-
-        .hide-col-qtd .col-qtd {
-            display: none;
-        }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 
 <body>
@@ -425,7 +64,6 @@
         let itemDatabase = {};
         let loadedItemsRaw = [];
 
-        // Carrega o items.json local da mesma pasta
         async function loadExternalDatabase() {
             try {
                 const response = await fetch('items.json');
@@ -538,7 +176,8 @@
                     const globalIndex = loadedItemsRaw.indexOf(item);
                     const formattedCount = Number(item.count).toLocaleString('pt-BR');
 
-                    let imageUrl = `https://terraria.wiki.gg/images/${item.name_eng.replace(/ /g, "_")}.png`;
+                    // Rota local para a pasta onde você colocará os PNGs extraídos
+                    let imageUrl = `sprites/Item_${item.id}.png`;
 
                     const row = document.createElement('tr');
                     if (item.isFavorited) row.className = 'favorited';
@@ -546,7 +185,7 @@
                     row.innerHTML = `
                     <td class="col-id text-right" contenteditable="true" data-field="id" data-index="${globalIndex}"><span class="id-badge">${item.id}</span></td>
                     <td class="col-img text-center">
-                        ${item.name_eng !== "Unknown Item" ? `<img class="item-sprite" src="${imageUrl}" alt="${item.name_eng}" onerror="this.style.display='none';">` : ''}
+                        ${item.name_eng !== "Unknown Item" ? `<img class="item-sprite" src="${imageUrl}" alt="${item.name_eng}" onerror="this.removeAttribute('onerror'); this.style.display='none';">` : ''}
                     </td>
                     <td class="col-pt" contenteditable="true" data-field="name_ptbr" data-index="${globalIndex}">
                         <span class="star">★</span><strong>${item.name_ptbr}</strong>
@@ -634,85 +273,38 @@
         document.getElementById('showFavCheck').addEventListener('change', buildSegmentedTables);
         document.getElementById('searchBox').addEventListener('input', buildSegmentedTables);
 
-        // ABORDAGEM MATADORA SEM SCRIPT DE TERCEIROS:
-        // Transforma o DOM clonado em um nó XML/SVG legítimo e o extrai via Canvas nativo
         function downloadTablesImage() {
             const btn = document.getElementById('printBtnButton');
             const oldText = btn.innerText;
             btn.innerText = "Salvando...";
             btn.disabled = true;
 
-            const originalTarget = document.getElementById('tablesArea');
+            const target = document.getElementById('tablesArea');
+            target.classList.add('hide-actions');
 
-            // Clona a árvore estruturada e remove a coluna de deletar itens "x"
-            const clone = originalTarget.cloneNode(true);
-            clone.querySelectorAll('.col-action').forEach(el => el.remove());
+            setTimeout(() => {
+                html2canvas(target, {
+                    useCORS: false,
+                    allowTaint: false,
+                    logging: false,
+                    backgroundColor: '#1c243c',
+                    scale: 2
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'meu_inventario_terraria.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
 
-            const width = originalTarget.offsetWidth;
-            const height = originalTarget.offsetHeight;
-
-            // Monta o invólucro do SVG injetando os estilos gráficos globais essenciais da interface
-            const svgWrapper = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-                <foreignObject width="100%" height="100%">
-                    <div xmlns="http://www.w3.org/1999/xhtml" style="
-                        font-family: 'Andy', sans-serif;
-                        color: white;
-                        background: #0f1423;
-                        padding: 10px;
-                        box-sizing: border-box;
-                    ">
-                        <style>
-                            .table-wrapper { margin-bottom: 30px; background-color: rgba(28, 32, 56, 0.9); padding: 20px 25px; border-radius: 10px; border: 4px solid #2d3b68; }
-                            .table-title { font-size: 24px; color: #daae3b; margin-bottom: 12px; text-shadow: 2px 2px 0px #000; }
-                            .table-rounded-holder { width: 100%; border-radius: 10px; overflow: hidden; border: 3px solid #3b4b7c; }
-                            table { width: 100%; border-collapse: collapse; background-color: #141929; }
-                            th, td { padding: 10px 15px; text-align: left; font-size: 20px; text-shadow: 2px 2px 0px #000; vertical-align: middle; border-bottom: 1px solid #3b4b7c; }
-                            th { background-color: #141a2e; color: #daae3b; font-size: 22px; }
-                            .id-badge { color: #8fa3db; font-family: monospace; }
-                            .item-sprite { width: 32px; height: 32px; object-fit: contain; display: block; margin: 0 auto; filter: drop-shadow(2px 2px 0px #000); image-rendering: pixelated; }
-                            .text-right { text-align: right; }
-                            .text-center { text-align: center; }
-                            .show-fav .favorited { color: #ffeb3b; background-color: rgba(218, 174, 59, 0.05); }
-                            .hide-col-id .col-id, .hide-col-img .col-img, .hide-col-pt .col-pt, .hide-col-en .col-en, .hide-col-qtd .col-qtd { display: none !important; }
-                        </style>
-                        <div class="${originalTarget.className}">
-                            ${clone.innerHTML}
-                        </div>
-                    </div>
-                </foreignObject>
-            </svg>
-        `;
-
-            // Converte a string estruturada em uma URI codificada segura
-            const svgUrl = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgWrapper);
-
-            const img = new Image();
-            img.src = svgUrl;
-
-            img.onload = function () {
-                const canvas = document.createElement('canvas');
-                canvas.width = width * 2; // Força renderização dupla em alta definição
-                canvas.height = height * 2;
-                const ctx = canvas.getContext('2d');
-                ctx.scale(2, 2);
-                ctx.drawImage(img, 0, 0);
-
-                // Dispara o download da imagem nativa gerada
-                const link = document.createElement('a');
-                link.download = 'meu_inventario_terraria.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-
-                btn.innerText = oldText;
-                btn.disabled = false;
-            };
-
-            img.onerror = function () {
-                alert("Erro ao rasterizar a imagem estruturada nativa.");
-                btn.innerText = oldText;
-                btn.disabled = false;
-            };
+                    target.classList.remove('hide-actions');
+                    btn.innerText = oldText;
+                    btn.disabled = false;
+                }).catch(err => {
+                    target.classList.remove('hide-actions');
+                    alert("Erro ao exportar o PNG.");
+                    btn.innerText = oldText;
+                    btn.disabled = false;
+                });
+            }, 100);
         }
     </script>
 
