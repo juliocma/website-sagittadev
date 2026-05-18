@@ -1,8 +1,10 @@
 @charset "UTF-8";
 
 body {
+    font-family: 'Andy', 'Segoe UI', Tahoma, sans-serif;
+    font-weight: bold;
     background: #0f1423 url('https://www.transparenttextures.com/patterns/black-thread.png');
-    color: var(--text-color);
+    color: #ffffff;
     margin: 0;
     padding: 20px;
     display: flex;
