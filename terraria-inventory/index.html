@@ -331,7 +331,7 @@
             font-family: monospace;
         }
 
-        /* Pixel Perfeito Ativado sem Desfocar */
+        /* Pixel Perfeito Ativado e Nítido */
         .item-sprite {
             width: 32px;
             height: 32px;
@@ -422,45 +422,34 @@
     <div class="tables-panel" id="tablesArea"></div>
 
     <script>
-        // --- SEU BANCO DE DADOS INTEGRADO ---
-        const itemDatabase = {
-            1: { en: "Iron Pickaxe", pt: "Picareta de Ferro" },
-            2: { en: "Dirt Block", pt: "Bloco de Terra" },
-            9: { en: "Wood", pt: "Madeira" },
-            129: { en: "Feather", pt: "Pena" },
-            130: { en: "Glowstick", pt: "Bastão Luminoso" },
-            170: { en: "Black Lens", pt: "Lente Negra" },
-            392: { en: "Stone Block", pt: "Bloco de Pedra" },
-            479: { en: "Soulless Mask", pt: "Máscara Desalmada" },
-            620: { en: "Hardened Sand Block", pt: "Bloco de Areia Endurecida" },
-            819: { en: "Tin Ore", pt: "Minério de Estanho" },
-            849: { en: "Musket Ball", pt: "Bala de Mosquete" },
-            911: { en: "Pixie Dust", pt: "Pó de Pixie" },
-            933: { en: "Zephyr Fish", pt: "Peixe Zéfiro" },
-            1097: { en: "Palladium Ore", pt: "Minério de Paládio" },
-            1110: { en: "Orichalcum Ore", pt: "Minério de Oricalco" },
-            1269: { en: "Orange Dye", pt: "Corante Laranja" },
-            1543: { en: "Star Veil", pt: "Estrela de Nêutron" },
-            1544: { en: "Cross Necklace", pt: "Colar de Cruz" },
-            1545: { en: "Mana Flower", pt: "Flor de Mana" },
-            1966: { en: "Spooky Wood", pt: "Madeira Assombrada" },
-            2212: { en: "Beetle Husk", pt: "Casca de Besouro" },
-            2213: { en: "Chain Guillotines", pt: "Guilhotinas de Corrente" },
-            2260: { en: "Pharaoh's Robe", pt: "Robe do Faraó" },
-            2433: { en: "Boreal Wood Fence", pt: "Cerca de Madeira Boreal" },
-            2434: { en: "Boreal Wood Wall", pt: "Parede de Madeira Boreal" },
-            2781: { en: "Spooky Hook", pt: "Gancho Assombrado" },
-            3213: { en: "Golden Key", pt: "Chave Dourada" },
-            3388: { en: "Squire's Great Helm", pt: "Grande Elmo do Escudeiro" },
-            3524: { en: "Cosmic Car Key", pt: "Chave do Carro Cósmico" },
-            3584: { en: "Solar Tablet Fragment", pt: "Fragmento de Tablet Solar" },
-            3620: { en: "Behemoth Jacket", pt: "Jaqueta de Behemoth" },
-            5216: { en: "Resplendent Dessert", pt: "Sobremesa Resplandecente" },
-            5922: { en: "Sturdy Saddle", pt: "Sela Resistente" },
-            6012: { en: "Skeletron Prime Relic", pt: "Relíquia do Esqueletron Prime" }
-        };
-
+        // Objeto vazio que guardará o banco indexado dinamicamente
+        let itemDatabase = {};
         let loadedItemsRaw = [];
+
+        // EXECUÇÃO INICIAL: Carrega o arquivo externo 'items.json' localizado na mesma raiz do HTML
+        async function loadExternalDatabase() {
+            try {
+                const response = await fetch('items.json');
+                if (!response.ok) throw new Error('Não foi possível ler o arquivo items.json');
+                const data = await response.json();
+
+                if (data && data.items && Array.isArray(data.items)) {
+                    // Indexa o array do JSON em um objeto mapeado por ID para busca rápida O(1)
+                    data.items.forEach(item => {
+                        itemDatabase[item.id] = {
+                            en: item.en || "Unknown Item",
+                            pt: item.pt_br || "Item não catalogado" // Lendo a nova chave estrutural pt_br
+                        };
+                    });
+                    console.log(`Banco de dados carregado com sucesso! Versão do JSON: ${data.version || 'Desconhecida'}`);
+                }
+            } catch (err) {
+                console.error("Erro Crítico ao carregar a lista de tradução: ", err);
+            }
+        }
+
+        // Inicializa a carga do JSON imediatamente ao abrir a página
+        loadExternalDatabase();
 
         document.getElementById('invFile').addEventListener('change', function (e) {
             const file = e.target.files[0];
@@ -552,14 +541,13 @@
                     const globalIndex = loadedItemsRaw.indexOf(item);
                     const formattedCount = Number(item.count).toLocaleString('pt-BR');
 
-                    // REPOSITÓRIO COM CORS TOTALMENTE ABERTO:
-                    // Carrega de um espelho alternativo que aceita requisições HTTPS e crossorigin de qualquer site externo
+                    // Endereço estável da comunidade com cabeçalhos CORS abertos para GitHub Pages
                     let imageUrl = `https://raw.githubusercontent.com/demiansky/Terraria-Sprites/master/Sprites/Item_${item.id}.png`;
 
                     const row = document.createElement('tr');
                     if (item.isFavorited) row.className = 'favorited';
 
-                    // CORREÇÃO DO LOOP: Ao dar erro, remove a imagem da tela em vez de tentar carregar outro link quebrado
+                    // Tratamento seguro do loop: Se quebrar, oculta a tag de forma limpa e definitiva
                     row.innerHTML = `
                     <td class="col-id text-right" contenteditable="true" data-field="id" data-index="${globalIndex}"><span class="id-badge">${item.id}</span></td>
                     <td class="col-img text-center">
@@ -662,7 +650,7 @@
 
             setTimeout(() => {
                 html2canvas(target, {
-                    useCORS: true,       // Agora que o link aceita CORS, o print sai perfeitamente limpo no GitHub Pages
+                    useCORS: true,
                     allowTaint: false,
                     logging: false,
                     backgroundColor: '#1c243c',
