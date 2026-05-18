@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraria Inventory Editor - Deluxe</title>
+    <link href="https://fonts.cdnfonts.com/css/andy" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #1c243c;
+            --container-bg: rgba(28, 32, 56, 0.9);
+            --text-color: #ffffff;
+            --accent-color: #daae3b;
+            --border-color: #3b4b7c;
+            --row-hover: #2c3a63;
+            --fav-color: #ff3b3b;
+            --slot-bg: #141929;
+            --radius: 10px;
+        }
+
+        body {
+            font-family: 'Andy', 'Segoe UI', Tahoma, sans-serif;
+            font-weight: bold;
+            background: #0f1423 url('https://www.transparenttextures.com/patterns/black-thread.png');
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .block-panel {
+            width: 100%;
+            max-width: 1000px;
+            box-sizing: border-box;
+            background-color: var(--container-bg);
+            padding: 25px 30px;
+            border-radius: var(--radius);
+            border: 4px solid #2d3b68;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 8px 25px rgba(0, 0, 0, 0.7);
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--accent-color);
+            font-size: 42px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0px #000;
+            letter-spacing: 2px;
+        }
+
+        .upload-section {
+            width: 100%;
+        }
+
+        .file-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 3px dashed var(--border-color);
+            padding: 35px 15px;
+            border-radius: var(--radius);
+            background-color: var(--slot-bg);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-shadow: 2px 2px 0px #000;
+        }
+
+        .file-box:hover {
+            border-color: var(--accent-color);
+            background-color: #192035;
+        }
+
+        .file-box.loaded {
+            border-color: #00e676;
+            background-color: #122420;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .box-title {
+            font-size: 24px;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+
+        .box-desc {
+            font-size: 16px;
+            color: #aaa;
+        }
+
+        .controls-panel {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 15px;
+            box-sizing: border-box;
+            background-color: var(--slot-bg);
+            border: 3px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: var(--radius);
+            font-family: 'Andy', sans-serif;
+            font-size: 22px;
+            font-weight: bold;
+            text-shadow: 1px 1px 0px #000;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .block-config {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            text-shadow: 1px 1px 0px #000;
+        }
+
+        .block-config input {
+            width: 60px;
+            padding: 6px;
+            background-color: var(--slot-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 5px;
+            font-family: 'Andy', sans-serif;
+            font-size: 18px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .column-toggles {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px dashed var(--border-color);
+            font-size: 18px;
+            text-shadow: 1px 1px 0px #000;
+        }
+
+        .toggle-title {
+            color: var(--accent-color);
+            margin-right: 5px;
+        }
+
+        .options-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .options-box input {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-color);
+            margin: 0;
+        }
+
+        .control-star {
+            color: #ffeb3b;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .print-btn {
+            background-color: #a45224;
+            border: 3px solid #5a2810;
+            color: white;
+            padding: 8px 16px;
+            font-family: 'Andy', sans-serif;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: var(--radius);
+            cursor: pointer;
+            text-shadow: 1px 1px 0px #000;
+            box-shadow: 0 4px 0px #401a0a;
+            transition: background 0.1s;
+        }
+
+        .print-btn:hover {
+            background-color: #bd5f2b;
+        }
+
+        .print-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .tables-panel {
+            display: none;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .table-wrapper {
+            margin-bottom: 30px;
+            background-color: var(--container-bg);
+            padding: 20px 25px;
+            border-radius: var(--radius);
+            border: 4px solid #2d3b68;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 8px 25px rgba(0, 0, 0, 0.7);
+        }
+
+        .table-title {
+            font-size: 24px;
+            color: var(--accent-color);
+            margin-bottom: 12px;
+            text-shadow: 2px 2px 0px #000;
+            letter-spacing: 1px;
+        }
+
+        .table-rounded-holder {
+            width: 100%;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 3px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--slot-bg);
+        }
+
+        th,
+        td {
+            padding: 10px 15px;
+            text-align: left;
+            font-size: 20px;
+            text-shadow: 2px 2px 0px #000;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: #141a2e;
+            color: var(--accent-color);
+            border-bottom: 3px solid var(--border-color);
+            font-size: 22px;
+        }
+
+        td {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: var(--row-hover);
+        }
+
+        td[contenteditable="true"] {
+            cursor: text;
+        }
+
+        td[contenteditable="true"]:focus {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            outline: none;
+        }
+
+        .delete-btn {
+            color: #ff4a4a;
+            cursor: pointer;
+            font-size: 22px;
+            text-align: center;
+            user-select: none;
+            transition: transform 0.1s;
+        }
+
+        .delete-btn:hover {
+            color: #ff1a1a;
+            transform: scale(1.2);
+        }
+
+        .hide-actions .col-action {
+            display: none !important;
+        }
+
+        .star {
+            display: none;
+        }
+
+        .show-fav .favorited {
+            color: #ffeb3b;
+            background-color: rgba(218, 174, 59, 0.05);
+        }
+
+        .show-fav .favorited .star {
+            color: #ffeb3b;
+            margin-right: 5px;
+            font-size: 18px;
+            display: inline;
+        }
+
+        .id-badge {
+            color: #8fa3db;
+            font-family: monospace;
+        }
+
+        /* Pixel Perfeito Ativo e Nítido */
+        .item-sprite {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+            filter: drop-shadow(2px 2px 0px #000);
+
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .hide-col-id .col-id {
+            display: none;
+        }
+
+        .hide-col-img .col-img {
+            display: none;
+        }
+
+        .hide-col-pt .col-pt {
+            display: none;
+        }
+
+        .hide-col-en .col-en {
+            display: none;
+        }
+
+        .hide-col-qtd .col-qtd {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="block-panel">
+        <h1>Analisador de Inventario</h1>
+        <div class="upload-section">
+            <div class="file-box" id="invBox" onclick="document.getElementById('invFile').click()">
+                <span class="box-title" id="invTitle">Carregar Inventário</span>
+                <span class="box-desc">Arraste ou selecione seu arquivo 'Inv..json'</span>
+                <input type="file" id="invFile" accept=".json">
+            </div>
+        </div>
+    </div>
+
+    <div class="block-panel" id="controlsPanelBlock" style="display: none;">
+        <div class="controls-panel" id="controlsPanel">
+            <input type="text" id="searchBox" class="search-box" placeholder="Filtrar itens...">
+
+            <div class="block-config">
+                <span>Itens por lista:</span>
+                <input type="number" id="itemsPerBlock" value="10" min="1">
+            </div>
+
+            <label class="options-box">
+                <input type="checkbox" id="showFavCheck">
+                <span class="control-star">★</span>
+                Destacar favoritos
+            </label>
+
+            <button class="print-btn" id="printBtnButton" onclick="downloadTablesImage()">Salvar Imagem</button>
+
+            <div class="column-toggles">
+                <span class="toggle-title">Exibir Colunas:</span>
+                <label class="options-box"><input type="checkbox" id="colIdCheck" checked data-col="id"> ID</label>
+                <label class="options-box"><input type="checkbox" id="colImgCheck" checked data-col="img"> Ícone</label>
+                <label class="options-box"><input type="checkbox" id="colPtCheck" checked data-col="pt"> Nome em
+                    Português</label>
+                <label class="options-box"><input type="checkbox" id="colEnCheck" checked data-col="en"> English
+                    Name</label>
+                <label class="options-box"><input type="checkbox" id="colQtdCheck" checked data-col="qtd"> Qtd</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="tables-panel" id="tablesArea"></div>
+
+    <script>
+        const itemDatabase = {
+            1: { en: "Iron Pickaxe", pt: "Picareta de Ferro" },
+            2: { en: "Dirt Block", pt: "Bloco de Terra" },
+            9: { en: "Wood", pt: "Madeira" },
+            129: { en: "Feather", pt: "Pena" },
+            130: { en: "Glowstick", pt: "Bastão Luminoso" },
+            170: { en: "Black Lens", pt: "Lente Negra" },
+            392: { en: "Stone Block", pt: "Bloco de Pedra" },
+            479: { en: "Soulless Mask", pt: "Máscara Desalmada" },
+            620: { en: "Hardened Sand Block", pt: "Bloco de Areia Endurecida" },
+            819: { en: "Tin Ore", pt: "Minério de Estanho" },
+            849: { en: "Musket Ball", pt: "Bala de Mosquete" },
+            911: { en: "Pixie Dust", pt: "Pó de Pixie" },
+            933: { en: "Zephyr Fish", pt: "Peixe Zéfiro" },
+            1097: { en: "Palladium Ore", pt: "Minério de Paládio" },
+            1110: { en: "Orichalcum Ore", pt: "Minério de Oricalco" },
+            1269: { en: "Orange Dye", pt: "Corante Laranja" },
+            1543: { en: "Star Veil", pt: "Estrela de Nêutron" },
+            1544: { en: "Cross Necklace", pt: "Colar de Cruz" },
+            1545: { en: "Mana Flower", pt: "Flor de Mana" },
+            1966: { en: "Spooky Wood", pt: "Madeira Assombrada" },
+            2212: { en: "Beetle Husk", pt: "Casca de Besouro" },
+            2213: { en: "Chain Guillotines", pt: "Guilhotinas de Corrente" },
+            2260: { en: "Pharaoh's Robe", pt: "Robe do Faraó" },
+            2433: { en: "Boreal Wood Fence", pt: "Cerca de Madeira Boreal" },
+            2434: { en: "Boreal Wood Wall", pt: "Parede de Madeira Boreal" },
+            2781: { en: "Spooky Hook", pt: "Gancho Assombrado" },
+            3213: { en: "Golden Key", pt: "Chave Dourada" },
+            3388: { en: "Squire's Great Helm", pt: "Grande Elmo do Escudeiro" },
+            3524: { en: "Cosmic Car Key", pt: "Chave do Carro Cósmico" },
+            3584: { en: "Solar Tablet Fragment", pt: "Fragmento de Tablet Solar" },
+            3620: { en: "Behemoth Jacket", pt: "Jaqueta de Behemoth" },
+            5216: { en: "Resplendent Dessert", pt: "Sobremesa Resplandecente" },
+            5922: { en: "Sturdy Saddle", pt: "Sela Resistente" },
+            6012: { en: "Skeletron Prime Relic", pt: "Relíquia do Esqueletron Prime" }
+        };
+
+        let loadedItemsRaw = [];
+
+        document.getElementById('invFile').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (evt) {
+                try {
+                    const data = JSON.parse(evt.target.result);
+                    if (data.items && Array.isArray(data.items)) {
+                        document.getElementById('invBox').classList.add('loaded');
+                        document.getElementById('invTitle').innerText = "✓ Inventário Lido";
+
+                        loadedItemsRaw = data.items.filter(item => item && item.id).map(item => {
+                            const dbItem = itemDatabase[item.id] || { pt: "Item não catalogado", en: "Unknown Item" };
+                            return {
+                                id: item.id,
+                                count: item.count,
+                                isFavorited: item.isFavorited || false,
+                                name_ptbr: dbItem.pt,
+                                name_eng: dbItem.en
+                            };
+                        });
+
+                        buildSegmentedTables();
+                    } else {
+                        alert('Formato de inventário inválido.');
+                    }
+                } catch (err) {
+                    alert('Erro ao ler o arquivo de inventário.');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        function buildSegmentedTables() {
+            const container = document.getElementById('tablesArea');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const searchFilter = document.getElementById('searchBox').value.toLowerCase();
+            const itemsPerBlock = parseInt(document.getElementById('itemsPerBlock').value) || 10;
+            const highlightFavorites = document.getElementById('showFavCheck').checked;
+
+            const filteredItems = loadedItemsRaw.filter(item => {
+                return item.id.toString().includes(searchFilter) ||
+                    item.name_ptbr.toLowerCase().includes(searchFilter) ||
+                    item.name_eng.toLowerCase().includes(searchFilter);
+            });
+
+            if (filteredItems.length === 0) {
+                container.innerHTML = '<div class="table-wrapper" style="text-align:center; font-size:22px; color:#aaa;">Nenhum item correspondente encontrado.</div>';
+                return;
+            }
+
+            let blockIndex = 1;
+            for (let i = 0; i < filteredItems.length; i += itemsPerBlock) {
+                const chunk = filteredItems.slice(i, i + itemsPerBlock);
+
+                const wrapper = document.createElement('div');
+                wrapper.className = `table-wrapper ${highlightFavorites ? 'show-fav' : ''}`;
+
+                const title = document.createElement('div');
+                title.className = 'table-title';
+                title.innerText = `Lista de Itens #${blockIndex}`;
+                wrapper.appendChild(title);
+
+                const tableHolder = document.createElement('div');
+                tableHolder.className = 'table-rounded-holder';
+
+                const table = document.createElement('table');
+                table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th class="col-id text-right" style="width: 10%">ID</th>
+                        <th class="col-img" style="width: 10%; text-align: center;">Ícone</th>
+                        <th class="col-pt" style="width: 35%">Nome em Português</th>
+                        <th class="col-en" style="width: 25%">English Name</th>
+                        <th class="col-qtd text-right" style="width: 12%">Qtd</th>
+                        <th class="col-action text-center" style="width: 8%">Ação</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+
+                const tbody = table.querySelector('tbody');
+
+                chunk.forEach((item) => {
+                    const globalIndex = loadedItemsRaw.indexOf(item);
+                    const formattedCount = Number(item.count).toLocaleString('pt-BR');
+
+                    let imageUrl = "";
+                    if (item.name_eng && item.name_eng !== "Unknown Item") {
+                        imageUrl = `https://terraria.wiki.gg/images/${item.name_eng.replace(/ /g, "_")}.png`;
+                    }
+
+                    const row = document.createElement('tr');
+                    if (item.isFavorited) row.className = 'favorited';
+
+                    // Importante: Tag 'crossorigin="anonymous"' ativada para funcionamento em HTTPS (Servidor/GitHub)
+                    row.innerHTML = `
+                    <td class="col-id text-right" contenteditable="true" data-field="id" data-index="${globalIndex}"><span class="id-badge">${item.id}</span></td>
+                    <td class="col-img text-center">
+                        ${item.name_eng ? `<img class="item-sprite" src="${imageUrl}" alt="${item.name_eng}" crossorigin="anonymous" onerror="this.style.display='none'">` : ''}
+                    </td>
+                    <td class="col-pt" contenteditable="true" data-field="name_ptbr" data-index="${globalIndex}">
+                        <span class="star">★</span><strong>${item.name_ptbr}</strong>
+                    </td>
+                    <td class="col-en" contenteditable="true" data-field="name_eng" data-index="${globalIndex}"><span style="opacity: 0.7; font-style: italic;">${item.name_eng}</span></td>
+                    <td class="col-qtd text-right" contenteditable="true" data-field="count" data-index="${globalIndex}">${formattedCount}</td>
+                    <td class="col-action text-center"><span class="delete-btn" onclick="removeItemFromInventory(${globalIndex})">×</span></td>
+                `;
+                    tbody.appendChild(row);
+                });
+
+                tableHolder.appendChild(table);
+                wrapper.appendChild(tableHolder);
+                container.appendChild(wrapper);
+                blockIndex++;
+            }
+
+            updateColumnVisibility();
+            attachEditEvents();
+
+            document.getElementById('controlsPanelBlock').style.display = 'block';
+            document.getElementById('controlsPanel').style.display = 'flex';
+            document.getElementById('tablesArea').style.display = 'block';
+        }
+
+        function updateColumnVisibility() {
+            const target = document.getElementById('tablesArea');
+            if (!target) return;
+
+            const checkboxes = document.querySelectorAll('.column-toggles input');
+            checkboxes.forEach(cb => {
+                const className = `hide-col-${cb.getAttribute('data-col')}`;
+                if (!cb.checked) {
+                    target.classList.add(className);
+                } else {
+                    target.classList.remove(className);
+                }
+            });
+        }
+
+        function attachEditEvents() {
+            const editableCells = document.querySelectorAll('td[contenteditable="true"]');
+
+            editableCells.forEach(cell => {
+                cell.addEventListener('blur', function () {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    const field = this.getAttribute('data-field');
+                    let newValue = this.innerText.replace(/[\n\r]/g, "").trim();
+
+                    if (field === 'id' || field === 'count') {
+                        newValue = parseInt(newValue.replace(/\./g, '')) || loadedItemsRaw[index][field];
+                    }
+
+                    loadedItemsRaw[index][field] = newValue;
+
+                    if (field === 'name_eng' || field === 'id') {
+                        if (field === 'id') {
+                            const dbItem = itemDatabase[newValue] || { pt: "Item não catalogado", en: "Unknown Item" };
+                            loadedItemsRaw[index].name_ptbr = dbItem.pt;
+                            loadedItemsRaw[index].name_eng = dbItem.en;
+                        }
+                        buildSegmentedTables();
+                    }
+                });
+
+                cell.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.blur();
+                    }
+                });
+            });
+        }
+
+        function removeItemFromInventory(globalIndex) {
+            loadedItemsRaw.splice(globalIndex, 1);
+            buildSegmentedTables();
+        }
+
+        document.querySelectorAll('.column-toggles input').forEach(checkbox => {
+            checkbox.addEventListener('change', updateColumnVisibility);
+        });
+
+        document.getElementById('itemsPerBlock').addEventListener('input', buildSegmentedTables);
+        document.getElementById('showFavCheck').addEventListener('change', buildSegmentedTables);
+        document.getElementById('searchBox').addEventListener('input', buildSegmentedTables);
+
+        // MODO SERVIDOR ATIVADO: Configuração limpa e otimizada para capturar os recursos em ambiente HTTPS (GitHub)
+        function downloadTablesImage() {
+            const btn = document.getElementById('printBtnButton');
+            const oldText = btn.innerText;
+            btn.innerText = "Salvando...";
+            btn.disabled = true;
+
+            const target = document.getElementById('tablesArea');
+            target.classList.add('hide-actions');
+
+            setTimeout(() => {
+                html2canvas(target, {
+                    useCORS: true,       // Ativa o bypass CORS nativo do GitHub Pages
+                    allowTaint: false,   // Mantém o buffer limpo e sem contaminação gráfica externa
+                    logging: false,
+                    backgroundColor: '#1c243c',
+                    scale: 2
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'meu_inventario_terraria.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+
+                    target.classList.remove('hide-actions');
+                    btn.innerText = oldText;
+                    btn.disabled = false;
+                }).catch(err => {
+                    target.classList.remove('hide-actions');
+                    alert("Erro ao gerar a imagem.");
+                    btn.innerText = oldText;
+                    btn.disabled = false;
+                });
+            }, 100);
+        }
+    </script>
+
+</body>
+
+</html>
