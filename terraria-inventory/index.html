@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/terraria-inventory/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terraria Inventory Editor - Deluxe</title>
     <link href="https://fonts.cdnfonts.com/css/andy" rel="stylesheet">
@@ -422,11 +423,10 @@
     <div class="tables-panel" id="tablesArea"></div>
 
     <script>
-        // Objeto vazio que guardará o banco indexado dinamicamente
         let itemDatabase = {};
         let loadedItemsRaw = [];
 
-        // EXECUÇÃO INICIAL: Carrega o arquivo externo 'items.json' localizado na mesma raiz do HTML
+        // Carrega o items.json local da mesma pasta
         async function loadExternalDatabase() {
             try {
                 const response = await fetch('items.json');
@@ -434,21 +434,19 @@
                 const data = await response.json();
 
                 if (data && data.items && Array.isArray(data.items)) {
-                    // Indexa o array do JSON em um objeto mapeado por ID para busca rápida O(1)
                     data.items.forEach(item => {
                         itemDatabase[item.id] = {
                             en: item.en || "Unknown Item",
-                            pt: item.pt_br || "Item não catalogado" // Lendo a nova chave estrutural pt_br
+                            pt: item.pt_br || "Item não catalogado"
                         };
                     });
-                    console.log(`Banco de dados carregado com sucesso! Versão do JSON: ${data.version || 'Desconhecida'}`);
+                    console.log("Banco de dados local sincronizado!");
                 }
             } catch (err) {
-                console.error("Erro Crítico ao carregar a lista de tradução: ", err);
+                console.error("Erro ao carregar items.json: ", err);
             }
         }
 
-        // Inicializa a carga do JSON imediatamente ao abrir a página
         loadExternalDatabase();
 
         document.getElementById('invFile').addEventListener('change', function (e) {
@@ -541,17 +539,16 @@
                     const globalIndex = loadedItemsRaw.indexOf(item);
                     const formattedCount = Number(item.count).toLocaleString('pt-BR');
 
-                    // Endereço estável da comunidade com cabeçalhos CORS abertos para GitHub Pages
-                    let imageUrl = `https://raw.githubusercontent.com/demiansky/Terraria-Sprites/master/Sprites/Item_${item.id}.png`;
+                    // RETORNO DEFINITIVO ÀS IMAGENS DA WIKI OFICIAL:
+                    let imageUrl = `https://terraria.wiki.gg/images/${item.name_eng.replace(/ /g, "_")}.png`;
 
                     const row = document.createElement('tr');
                     if (item.isFavorited) row.className = 'favorited';
 
-                    // Tratamento seguro do loop: Se quebrar, oculta a tag de forma limpa e definitiva
                     row.innerHTML = `
                     <td class="col-id text-right" contenteditable="true" data-field="id" data-index="${globalIndex}"><span class="id-badge">${item.id}</span></td>
                     <td class="col-img text-center">
-                        ${item.name_eng !== "Unknown Item" ? `<img class="item-sprite" src="${imageUrl}" alt="${item.name_eng}" crossorigin="anonymous" onerror="this.removeAttribute('onerror'); this.style.display='none';">` : ''}
+                        ${item.name_eng !== "Unknown Item" ? `<img class="item-sprite" src="${imageUrl}" alt="${item.name_eng}" onerror="this.removeAttribute('onerror'); this.style.display='none';">` : ''}
                     </td>
                     <td class="col-pt" contenteditable="true" data-field="name_ptbr" data-index="${globalIndex}">
                         <span class="star">★</span><strong>${item.name_ptbr}</strong>
@@ -639,6 +636,7 @@
         document.getElementById('showFavCheck').addEventListener('change', buildSegmentedTables);
         document.getElementById('searchBox').addEventListener('input', buildSegmentedTables);
 
+        // SOLUÇÃO PARA SALVAMENTO EM SITES HTTPS:
         function downloadTablesImage() {
             const btn = document.getElementById('printBtnButton');
             const oldText = btn.innerText;
@@ -651,6 +649,8 @@
             setTimeout(() => {
                 html2canvas(target, {
                     useCORS: true,
+                    // Proxy oficial seguro do html2canvas que descriptografa e autoriza imagens da Wiki
+                    proxy: "https://html2canvas.proxy.workers.dev",
                     allowTaint: false,
                     logging: false,
                     backgroundColor: '#1c243c',
@@ -666,7 +666,7 @@
                     btn.disabled = false;
                 }).catch(err => {
                     target.classList.remove('hide-actions');
-                    alert("Erro ao gerar a imagem.");
+                    alert("Erro ao gerar a imagem usando o proxy.");
                     btn.innerText = oldText;
                     btn.disabled = false;
                 });
