@@ -539,13 +539,12 @@
                     const globalIndex = loadedItemsRaw.indexOf(item);
                     const formattedCount = Number(item.count).toLocaleString('pt-BR');
 
-                    // Chamada 100% limpa e direta da Wiki: Sem parâmetros indutores de segurança
+                    // Chamada limpa oficial da Wiki: Sem parâmetros indutores de segurança
                     let imageUrl = `https://terraria.wiki.gg/images/${item.name_eng.replace(/ /g, "_")}.png`;
 
                     const row = document.createElement('tr');
                     if (item.isFavorited) row.className = 'favorited';
 
-                    // Tratamento estrutural estável: Caso falhe, oculta a tag sem loops no console
                     row.innerHTML = `
                     <td class="col-id text-right" contenteditable="true" data-field="id" data-index="${globalIndex}"><span class="id-badge">${item.id}</span></td>
                     <td class="col-img text-center">
@@ -637,7 +636,8 @@
         document.getElementById('showFavCheck').addEventListener('change', buildSegmentedTables);
         document.getElementById('searchBox').addEventListener('input', buildSegmentedTables);
 
-        // ENGENHARIA DE PRINT ASSÍNCRONA E INDEPENDENTE DE CORS
+        // ABORDAGEM DE CONVERSÃO EXCLUSIVA NO CLIQUE: 
+        // Alimenta um canvas interno com a renderização em memória direta, contornando a poluição do canvas
         async function downloadTablesImage() {
             const btn = document.getElementById('printBtnButton');
             const oldText = btn.innerText;
@@ -646,16 +646,17 @@
 
             const originalTarget = document.getElementById('tablesArea');
 
-            // Passo 1: Clona a tabela da tela para um contêiner fantasma isolado na memória
+            // Cria um clone oculto para processar a conversão gráfica sem interferir na visualização do usuário
             const clone = originalTarget.cloneNode(true);
             clone.style.position = 'absolute';
             clone.style.top = '-9999px';
             clone.style.left = '-9999px';
-            clone.classList.add('hide-actions'); // Oculta botões "x"
+            clone.classList.add('hide-actions'); // Remove a coluna de ações "x"
             document.body.appendChild(clone);
 
-            // Passo 2: Varre as imagens clonadas e força a leitura via Canvas anônimo local
             const clonedImages = clone.querySelectorAll('.item-sprite');
+
+            // Estrutura promessas assíncronas para processar as imagens via Canvas local anônimo de cache
             const conversionPromises = Array.from(clonedImages).map(img => {
                 return new Promise((resolve) => {
                     if (!img.src || img.src.startsWith('data:image')) {
@@ -663,20 +664,23 @@
                         return;
                     }
 
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
                     const tempImage = new Image();
+
+                    // Força o comportamento anônimo legítimo permitido pela hospedagem https do GitHub Pages/Servidor
                     tempImage.crossOrigin = "anonymous";
                     tempImage.src = img.src;
 
                     tempImage.onload = function () {
                         try {
-                            const canvas = document.createElement('canvas');
                             canvas.width = tempImage.naturalWidth;
                             canvas.height = tempImage.naturalHeight;
-                            const ctx = canvas.getContext('2d');
                             ctx.drawImage(tempImage, 0, 0);
+                            // Substitui o link bloqueado pelo buffer de dados nativo
                             img.src = canvas.toDataURL('image/png');
                         } catch (e) {
-                            // Ignora falhas individuais para manter a renderização contínua
+                            console.log("Falha ao descriptografar pixel isolado.");
                         }
                         resolve();
                     };
@@ -687,16 +691,16 @@
                 });
             });
 
-            // Passo 3: Aguarda a conversão de todos os buffers e fecha o arquivo final
+            // Aguarda a resolução gráfica de todas as linhas da tabela
             await Promise.all(conversionPromises);
 
             setTimeout(() => {
                 html2canvas(clone, {
-                    useCORS: false,      // Falso: Desativa requisições externas binárias travadas
-                    allowTaint: true,    // Verdadeiro: Permite ler os dados locais convertidos em memória
+                    useCORS: false,      // Falso: Evita o estouro gráfico das requisições diretas da Wiki
+                    allowTaint: true,    // Verdadeiro: Autoriza a captura dos buffers de dados resolvidos locais
                     logging: false,
                     backgroundColor: '#1c243c',
-                    scale: 2
+                    scale: 2             // Preserva alta definição
                 }).then(canvas => {
                     const link = document.createElement('a');
                     link.download = 'meu_inventario_terraria.png';
@@ -708,7 +712,7 @@
                     btn.disabled = false;
                 }).catch(err => {
                     if (document.body.contains(clone)) document.body.removeChild(clone);
-                    alert("Erro ao gerar o arquivo de imagem.");
+                    alert("Erro ao exportar a tabela estruturada.");
                     btn.innerText = oldText;
                     btn.disabled = false;
                 });
