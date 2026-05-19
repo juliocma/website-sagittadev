@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terraria Inventory Editor - Deluxe</title>
+    <title>Terraria Inventory Exporter</title>
 
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
 
@@ -38,7 +38,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Estrutura Base dos Painéis */
+        /* Estrutura Fixa dos Painéis Superiores (1000px estáveis) */
         .block-panel {
             width: 100%;
             max-width: 1000px;
@@ -104,13 +104,31 @@
             color: #aaa;
         }
 
-        /* Painel de Controles */
+        /* Painel de Controles Principal */
         .controls-panel {
             display: none;
-            justify-content: space-between;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        /* AJUSTE DE ESPAÇAMENTO: Padronização vertical baseada na altura dos botões */
+        .controls-row {
+            display: flex;
             align-items: center;
             gap: 15px;
             flex-wrap: wrap;
+            width: 100%;
+            padding: 14px 0;
+            /* Altura de respiro idêntica ao padding interno dos botões de ação */
+            box-sizing: border-box;
+        }
+
+        /* Linha Pontilhada de Separação */
+        .divider {
+            width: 100%;
+            border: none;
+            border-top: 2px dashed var(--border-color);
+            margin: 0;
         }
 
         .search-box {
@@ -142,7 +160,7 @@
         }
 
         .block-config input {
-            width: 60px;
+            width: 75px;
             padding: 6px;
             background-color: var(--slot-bg);
             border: 2px solid var(--border-color);
@@ -154,7 +172,79 @@
             font-weight: bold;
         }
 
-        /* Botão Salvar Imagem (Destaque à Direita) */
+        /* Botão para Resetar a Largura */
+        .reset-width-btn {
+            background-color: #3b4b7c;
+            border: 3px solid #232d4b;
+            color: white;
+            padding: 8px 16px;
+            font-family: 'Andy', sans-serif;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: var(--radius);
+            cursor: pointer;
+            text-shadow: 1px 1px 0px #000;
+            box-shadow: 0 4px 0px #171d31;
+            transition: background 0.1s;
+        }
+
+        .reset-width-btn:hover {
+            background-color: #4b5f9c;
+        }
+
+        .reset-width-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        /* Seção Checkboxes / Colunas */
+        .column-toggles {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            font-size: 18px;
+            text-shadow: 1px 1px 0px #000;
+        }
+
+        .toggle-title {
+            color: var(--accent-color);
+            margin-right: 5px;
+        }
+
+        .options-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .options-box input {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-color);
+            margin: 0;
+        }
+
+        .control-star {
+            color: #ffeb3b;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        /* Botões alinhados à direita inferior */
+        .controls-bottom-actions {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        /* Estilo do Botão Salvar Imagem */
         .print-btn {
             background-color: #a45224;
             border: 3px solid #5a2810;
@@ -179,7 +269,7 @@
             box-shadow: none;
         }
 
-        /* Botão Desfazer (Separado à Esquerda) */
+        /* Estilo do Botão Desfazer */
         .undo-btn {
             background-color: #535a70;
             border: 3px solid #323745;
@@ -212,47 +302,7 @@
             transform: none;
         }
 
-        /* Seção Checkboxes / Colunas */
-        .column-toggles {
-            width: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 2px dashed var(--border-color);
-            font-size: 18px;
-            text-shadow: 1px 1px 0px #000;
-        }
-
-        .toggle-title {
-            color: var(--accent-color);
-            margin-right: 5px;
-        }
-
-        .options-box {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            user-select: none;
-            cursor: pointer;
-        }
-
-        .options-box input {
-            cursor: pointer;
-            width: 18px;
-            height: 18px;
-            accent-color: var(--accent-color);
-            margin: 0;
-        }
-
-        .control-star {
-            color: #ffeb3b;
-            font-size: 18px;
-            line-height: 1;
-        }
-
-        /* Área das Tabelas */
+        /* Área Isolada das Tabelas */
         .tables-panel {
             display: none;
             background: transparent;
@@ -261,6 +311,8 @@
             padding: 0;
             width: 100%;
             max-width: 1000px;
+            margin: 0 auto;
+            transition: max-width 0.1s ease;
         }
 
         .table-wrapper {
@@ -404,8 +456,8 @@
 
 <body>
 
-    <div class="block-panel">
-        <h1>Analisador de Inventario</h1>
+    <div class="block-panel" id="uploadPanelBlock">
+        <h1>Terraria Inventory Exporter</h1>
         <div class="upload-section">
             <div class="file-box" id="invBox" onclick="document.getElementById('invFile').click()">
                 <span class="box-title" id="invTitle">Carregar Inventário</span>
@@ -418,32 +470,58 @@
     <div class="block-panel" id="controlsPanelBlock" style="display: none;">
         <div class="controls-panel" id="controlsPanel">
 
-            <input type="text" id="searchBox" class="search-box" placeholder="Filtrar itens...">
-            <button class="undo-btn" id="undoBtn" onclick="undoAction()" disabled>Desfazer (Ctrl+Z)</button>
+            <div class="controls-row">
+                <input type="text" id="searchBox" class="search-box" placeholder="Filtrar itens...">
 
-            <div class="block-config">
-                <span>Itens por lista:</span>
-                <input type="number" id="itemsPerBlock" value="10" min="1">
+                <label class="options-box">
+                    <input type="checkbox" id="showFavCheck">
+                    <span class="control-star">★</span>
+                    Destacar favoritos
+                </label>
             </div>
 
-            <label class="options-box">
-                <input type="checkbox" id="showFavCheck">
-                <span class="control-star">★</span>
-                Destacar favoritos
-            </label>
+            <hr class="divider">
 
-            <button class="print-btn" id="printBtnButton" onclick="downloadTablesImage()">Salvar Imagem</button>
+            <div class="controls-row">
+                <div class="block-config">
+                    <span>Itens por lista:</span>
+                    <input type="number" id="itemsPerBlock" value="10" min="1">
+                </div>
 
-            <div class="column-toggles">
-                <span class="toggle-title">Exibir Colunas:</span>
-                <label class="options-box"><input type="checkbox" id="colIdCheck" checked data-col="id"> ID</label>
-                <label class="options-box"><input type="checkbox" id="colImgCheck" checked data-col="img"> Ícone</label>
-                <label class="options-box"><input type="checkbox" id="colPtCheck" checked data-col="pt"> Nome em
-                    Português</label>
-                <label class="options-box"><input type="checkbox" id="colEnCheck" checked data-col="en"> English
-                    Name</label>
-                <label class="options-box"><input type="checkbox" id="colQtdCheck" checked data-col="qtd"> Qtd</label>
+                <div class="block-config">
+                    <span>Largura lista (px):</span>
+                    <input type="number" id="tableWidthInput" value="1000" min="400" step="50">
+                </div>
+
+                <button class="reset-width-btn" onclick="resetToDefaultWidth()">Largura Padrão</button>
             </div>
+
+            <hr class="divider">
+
+            <div class="controls-row">
+                <div class="column-toggles">
+                    <span class="toggle-title">Exibir Colunas:</span>
+                    <label class="options-box"><input type="checkbox" id="colIdCheck" checked data-col="id"> ID</label>
+                    <label class="options-box"><input type="checkbox" id="colImgCheck" checked data-col="img">
+                        Ícone</label>
+                    <label class="options-box"><input type="checkbox" id="colPtCheck" checked data-col="pt"> Nome em
+                        Português</label>
+                    <label class="options-box"><input type="checkbox" id="colEnCheck" checked data-col="en"> English
+                        Name</label>
+                    <label class="options-box"><input type="checkbox" id="colQtdCheck" checked data-col="qtd">
+                        Qtd</label>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="controls-row">
+                <div class="controls-bottom-actions">
+                    <button class="undo-btn" id="undoBtn" onclick="undoAction()" disabled>Desfazer (Ctrl+Z)</button>
+                    <button class="print-btn" id="printBtnButton" onclick="downloadTablesImage()">Salvar Imagem</button>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -468,6 +546,9 @@
                         };
                     });
                     console.log("Banco de dados local sincronizado!");
+
+                    // Primeiro inicializa as configurações padrão salvas do cache
+                    loadSettingsFromStorage();
                 }
             } catch (err) {
                 console.error("Erro ao carregar items.json: ", err);
@@ -475,6 +556,68 @@
         }
 
         loadExternalDatabase();
+
+        // SALVAMENTO COMPLETO: Salva o estado atual de todas as variáveis de configuração no LocalStorage
+        function saveSettingsToStorage() {
+            const settings = {
+                searchBox: document.getElementById('searchBox').value,
+                itemsPerBlock: document.getElementById('itemsPerBlock').value,
+                tableWidthInput: document.getElementById('tableWidthInput').value,
+                showFavCheck: document.getElementById('showFavCheck').checked,
+                columns: {
+                    id: document.getElementById('colIdCheck').checked,
+                    img: document.getElementById('colImgCheck').checked,
+                    pt: document.getElementById('colPtCheck').checked,
+                    en: document.getElementById('colEnCheck').checked,
+                    qtd: document.getElementById('colQtdCheck').checked
+                }
+            };
+            localStorage.setItem('terraria_editor_settings', JSON.stringify(settings));
+        }
+
+        // CARREGAMENTO SEGURO: Recupera os dados guardados
+        function loadSettingsFromStorage() {
+            const raw = localStorage.getItem('terraria_editor_settings');
+            if (!raw) {
+                applyWidthConfiguration();
+                return;
+            }
+
+            try {
+                const settings = JSON.parse(raw);
+                document.getElementById('searchBox').value = settings.searchBox || '';
+                document.getElementById('itemsPerBlock').value = settings.itemsPerBlock || '10';
+                document.getElementById('tableWidthInput').value = settings.tableWidthInput || '1000';
+                document.getElementById('showFavCheck').checked = settings.showFavCheck || false;
+
+                if (settings.columns) {
+                    document.getElementById('colIdCheck').checked = settings.columns.id !== false;
+                    document.getElementById('colImgCheck').checked = settings.columns.img !== false;
+                    document.getElementById('colPtCheck').checked = settings.columns.pt !== false;
+                    document.getElementById('colEnCheck').checked = settings.columns.en !== false;
+                    document.getElementById('colQtdCheck').checked = settings.columns.qtd !== false;
+                }
+
+                applyWidthConfiguration();
+            } catch (e) {
+                console.error("Erro ao ler dados do localStorage", e);
+            }
+        }
+
+        // Sincroniza a largura máxima puramente sobre a lista de itens (#tablesArea)
+        function applyWidthConfiguration() {
+            const width = document.getElementById('tableWidthInput').value || 1000;
+            const targetElement = document.getElementById('tablesArea');
+            if (targetElement && width >= 400) {
+                targetElement.style.maxWidth = width + "px";
+            }
+        }
+
+        function resetToDefaultWidth() {
+            document.getElementById('tableWidthInput').value = 1000;
+            applyWidthConfiguration();
+            saveSettingsToStorage();
+        }
 
         function saveHistoryState() {
             const clone = JSON.parse(JSON.stringify(loadedItemsRaw));
@@ -517,7 +660,12 @@
 
                         undoHistoryStack = [];
                         updateUndoButtonUI();
+
+                        // Constrói a estrutura inicial
                         buildSegmentedTables();
+
+                        // GARANTIA DE PERSISTÊNCIA: Força a re-aplicação da largura logo após as tabelas nascerem na tela
+                        applyWidthConfiguration();
                     } else {
                         alert('Formato de inventário inválido.');
                     }
@@ -616,6 +764,9 @@
             document.getElementById('controlsPanelBlock').style.display = 'block';
             document.getElementById('controlsPanel').style.display = 'flex';
             document.getElementById('tablesArea').style.display = 'block';
+
+            // Garante aplicação da largura após filtros e buscas dinâmicas remontarem o DOM
+            applyWidthConfiguration();
         }
 
         function updateColumnVisibility() {
@@ -631,6 +782,7 @@
                     target.classList.remove(className);
                 }
             });
+            saveSettingsToStorage();
         }
 
         function updateUndoButtonUI() {
@@ -696,9 +848,14 @@
             checkbox.addEventListener('change', updateColumnVisibility);
         });
 
-        document.getElementById('itemsPerBlock').addEventListener('input', buildSegmentedTables);
-        document.getElementById('showFavCheck').addEventListener('change', buildSegmentedTables);
-        document.getElementById('searchBox').addEventListener('input', buildSegmentedTables);
+        document.getElementById('itemsPerBlock').addEventListener('input', () => { buildSegmentedTables(); saveSettingsToStorage(); });
+        document.getElementById('showFavCheck').addEventListener('change', () => { buildSegmentedTables(); saveSettingsToStorage(); });
+        document.getElementById('searchBox').addEventListener('input', () => { buildSegmentedTables(); saveSettingsToStorage(); });
+
+        document.getElementById('tableWidthInput').addEventListener('input', () => {
+            applyWidthConfiguration();
+            saveSettingsToStorage();
+        });
 
         function downloadTablesImage() {
             const btn = document.getElementById('printBtnButton');
