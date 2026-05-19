@@ -154,12 +154,7 @@
             font-weight: bold;
         }
 
-        /* Botões de Ação */
-        .btn-group {
-            display: flex;
-            gap: 10px;
-        }
-
+        /* Botão Salvar Imagem (Destaque à Direita) */
         .print-btn {
             background-color: #a45224;
             border: 3px solid #5a2810;
@@ -184,7 +179,7 @@
             box-shadow: none;
         }
 
-        /* Botão Desfazer Estilizado */
+        /* Botão Desfazer (Separado à Esquerda) */
         .undo-btn {
             background-color: #535a70;
             border: 3px solid #323745;
@@ -422,7 +417,9 @@
 
     <div class="block-panel" id="controlsPanelBlock" style="display: none;">
         <div class="controls-panel" id="controlsPanel">
+
             <input type="text" id="searchBox" class="search-box" placeholder="Filtrar itens...">
+            <button class="undo-btn" id="undoBtn" onclick="undoAction()" disabled>Desfazer (Ctrl+Z)</button>
 
             <div class="block-config">
                 <span>Itens por lista:</span>
@@ -435,10 +432,7 @@
                 Destacar favoritos
             </label>
 
-            <div class="btn-group">
-                <button class="undo-btn" id="undoBtn" onclick="undoAction()" disabled>Desfazer (Ctrl+Z)</button>
-                <button class="print-btn" id="printBtnButton" onclick="downloadTablesImage()">Salvar Imagem</button>
-            </div>
+            <button class="print-btn" id="printBtnButton" onclick="downloadTablesImage()">Salvar Imagem</button>
 
             <div class="column-toggles">
                 <span class="toggle-title">Exibir Colunas:</span>
@@ -458,8 +452,6 @@
     <script>
         let itemDatabase = {};
         let loadedItemsRaw = [];
-
-        // Pilha de histórico para controle do Undo
         let undoHistoryStack = [];
 
         async function loadExternalDatabase() {
@@ -484,47 +476,21 @@
 
         loadExternalDatabase();
 
-        // Registra o estado atual antes de qualquer alteração destrutiva
         function saveHistoryState() {
-            // Deep clone usando JSON para desvincular referências de memória
             const clone = JSON.parse(JSON.stringify(loadedItemsRaw));
             undoHistoryStack.push(clone);
-
-            // Limita o histórico em até 30 passos para não estourar RAM à toa
             if (undoHistoryStack.length > 30) {
                 undoHistoryStack.shift();
             }
-
             updateUndoButtonUI();
         }
 
-        // Função que retrocede um passo no tempo
         function undoAction() {
             if (undoHistoryStack.length === 0) return;
-
-            // Resgata o último estado gravado e redefine a matriz global
             loadedItemsRaw = undoHistoryStack.pop();
-
             buildSegmentedTables();
             updateUndoButtonUI();
         }
-
-        function updateUndoButtonUI() {
-            const btn = document.getElementById('undoBtn');
-            if (!btn) return;
-            btn.disabled = (undoHistoryStack.length === 0);
-        }
-
-        // Atalho global físico de teclado (Ctrl + Z)
-        window.addEventListener('keydown', function (e) {
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-                // Verifica se o foco não está em uma digitação de busca ativa
-                if (document.activeElement.tagName !== 'INPUT') {
-                    e.preventDefault();
-                    undoAction();
-                }
-            }
-        });
 
         document.getElementById('invFile').addEventListener('change', function (e) {
             const file = e.target.files[0];
@@ -549,10 +515,8 @@
                             };
                         });
 
-                        // Reseta o histórico ao abrir um novo arquivo
                         undoHistoryStack = [];
                         updateUndoButtonUI();
-
                         buildSegmentedTables();
                     } else {
                         alert('Formato de inventário inválido.');
@@ -669,6 +633,21 @@
             });
         }
 
+        function updateUndoButtonUI() {
+            const btn = document.getElementById('undoBtn');
+            if (!btn) return;
+            btn.disabled = (undoHistoryStack.length === 0);
+        }
+
+        window.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+                if (document.activeElement.tagName !== 'INPUT') {
+                    e.preventDefault();
+                    undoAction();
+                }
+            }
+        });
+
         function attachEditEvents() {
             const editableCells = document.querySelectorAll('td[contenteditable="true"]');
 
@@ -682,7 +661,6 @@
                         newValue = parseInt(newValue.replace(/\./g, '')) || loadedItemsRaw[index][field];
                     }
 
-                    // Só grava no histórico se o valor digitado realmente mudou
                     if (loadedItemsRaw[index][field] !== newValue) {
                         saveHistoryState();
 
@@ -709,9 +687,7 @@
         }
 
         function removeItemFromInventory(globalIndex) {
-            // Grava o estado atual antes de remover a linha da tabela
             saveHistoryState();
-
             loadedItemsRaw.splice(globalIndex, 1);
             buildSegmentedTables();
         }
