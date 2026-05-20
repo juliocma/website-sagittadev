@@ -7,9 +7,7 @@
     <title>Terraria Inventory Editor - Deluxe</title>
 
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-
     <link href="https://fonts.cdnfonts.com/css/andy" rel="stylesheet">
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
@@ -23,6 +21,7 @@
             --fav-color: #ff3b3b;
             --slot-bg: #141929;
             --radius: 10px;
+            --table-font-size: 20px;
         }
 
         body {
@@ -38,7 +37,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Estrutura Fixa dos Painéis Superiores (1000px estáveis) */
         .block-panel {
             width: 100%;
             max-width: 1000px;
@@ -104,14 +102,12 @@
             color: #aaa;
         }
 
-        /* Painel de Controles Principal */
         .controls-panel {
             display: none;
             flex-direction: column;
             width: 100%;
         }
 
-        /* Classes de Alinhamento das Linhas */
         .controls-row {
             display: flex;
             align-items: center;
@@ -122,7 +118,6 @@
             box-sizing: border-box;
         }
 
-        /* Linha Pontilhada de Separação */
         .divider {
             width: 100%;
             border: none;
@@ -174,13 +169,11 @@
             width: 75px;
         }
 
-        /* Input de texto para renomear os títulos das listas */
         .list-title-input {
             width: 160px;
             text-align: left !important;
         }
 
-        /* Botão para Resetar a Largura */
         .reset-width-btn {
             background-color: #3b4b7c;
             border: 3px solid #232d4b;
@@ -205,7 +198,100 @@
             box-shadow: none;
         }
 
-        /* Seção Checkboxes / Colunas Customizáveis */
+        .add-item-btn {
+            background-color: #2e7d32;
+            border: 3px solid #1b5e20;
+            color: white;
+            padding: 10px 16px;
+            font-family: 'Andy', sans-serif;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: var(--radius);
+            cursor: pointer;
+            text-shadow: 1px 1px 0px #000;
+            box-shadow: 0 4px 0px #114214;
+            transition: background 0.1s;
+        }
+
+        .add-item-btn:hover {
+            background-color: #388e3c;
+        }
+
+        .add-item-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        /* ESTILOS DO DROPDOWN (AUTOCOMPLETE) */
+        .autocomplete-container {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--container-bg);
+            border: 3px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 var(--radius) var(--radius);
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8);
+        }
+
+        .autocomplete-item {
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.1s;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:hover {
+            background-color: var(--row-hover);
+        }
+
+        .auto-icon {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            image-rendering: pixelated;
+            filter: drop-shadow(2px 2px 0px #000);
+        }
+
+        .auto-text {
+            flex: 1;
+            font-size: 20px;
+            text-shadow: 1px 1px 0px #000;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .auto-id {
+            color: #8fa3db;
+            font-family: monospace;
+            font-size: 16px;
+        }
+
+        .auto-en {
+            color: #aaa;
+            font-style: italic;
+            font-size: 16px;
+        }
+
         .column-toggles {
             width: 100%;
             display: flex;
@@ -225,6 +311,7 @@
             align-items: center;
             gap: 6px;
             user-select: none;
+            cursor: pointer;
         }
 
         .options-box input[type="checkbox"] {
@@ -260,17 +347,14 @@
             line-height: 1;
         }
 
-        /* Quarta linha estruturada: Contador à esquerda e Botões à direita */
         .controls-bottom-actions {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
-            /* Distribui um para cada lado oposto */
             align-items: center;
             width: 100%;
         }
 
-        /* Texto Informativo do Contador */
         .item-counter-text {
             font-size: 22px;
             color: #8fa3db;
@@ -285,7 +369,6 @@
             justify-content: flex-end;
         }
 
-        /* Estilo do Botão Salvar Imagem */
         .print-btn {
             background-color: #a45224;
             border: 3px solid #5a2810;
@@ -310,7 +393,6 @@
             box-shadow: none;
         }
 
-        /* Estilo do Botão Desfazer */
         .undo-btn {
             background-color: #535a70;
             border: 3px solid #323745;
@@ -343,7 +425,6 @@
             transform: none;
         }
 
-        /* Área Isolada das Tabelas */
         .tables-panel {
             display: none;
             background: transparent;
@@ -390,20 +471,21 @@
         td {
             padding: 10px 15px;
             text-align: left;
-            font-size: 20px;
             text-shadow: 2px 2px 0px #000;
             vertical-align: middle;
         }
 
+        /* Fontes e Tamanhos Dinâmicos nas Tabelas */
         th {
             background-color: #141a2e;
             color: var(--accent-color);
             border-bottom: 3px solid var(--border-color);
-            font-size: 22px;
+            font-size: calc(var(--table-font-size) + 2px);
         }
 
         td {
             border-bottom: 1px solid var(--border-color);
+            font-size: var(--table-font-size);
         }
 
         tr:last-child td {
@@ -492,6 +574,12 @@
         .hide-col-qtd .col-qtd {
             display: none;
         }
+
+        /* Classe essencial para print suave no canvas global */
+        .is-printing {
+            background-color: #181c31 !important;
+            box-shadow: none !important;
+        }
     </style>
 </head>
 
@@ -512,13 +600,29 @@
         <div class="controls-panel" id="controlsPanel">
 
             <div class="controls-row">
-                <input type="text" id="searchBox" class="search-box" placeholder="Filtrar itens...">
+                <input type="text" id="searchBox" class="search-box" placeholder="Filtrar itens exibidos...">
 
                 <label class="options-box">
                     <input type="checkbox" id="showFavCheck">
                     <span class="control-star">★</span>
                     Destacar favoritos
                 </label>
+
+                <div class="block-config" style="margin-left: auto;">
+                    <span>Fonte (px):</span>
+                    <input type="number" id="fontSizeInput" value="20" min="12" max="36" style="width: 60px;">
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="controls-row">
+                <div class="autocomplete-container">
+                    <input type="text" id="addRowInput" class="search-box" style="width: 100%; border-color: #2e7d32;"
+                        placeholder="Pesquisar por ID ou Nome para adicionar à lista..." autocomplete="off">
+                    <div id="autocompleteDropdown" class="autocomplete-dropdown"></div>
+                </div>
+                <button class="add-item-btn" onclick="addNewItemManual()">+ Adicionar Linha</button>
             </div>
 
             <hr class="divider">
@@ -534,12 +638,11 @@
                     <input type="number" id="tableWidthInput" value="1000" min="400" step="50">
                 </div>
                 <button class="reset-width-btn" onclick="resetToDefaultWidth()">Padrão</button>
+
                 <div class="block-config">
                     <span>Nome lista:</span>
                     <input type="text" id="customListTitleInput" class="list-title-input" value="Lista de Itens">
                 </div>
-
-
             </div>
 
             <hr class="divider">
@@ -628,8 +731,9 @@
                 searchBox: document.getElementById('searchBox').value,
                 itemsPerBlock: document.getElementById('itemsPerBlock').value,
                 tableWidthInput: document.getElementById('tableWidthInput').value,
-                customListTitle: document.getElementById('customListTitleInput').value, // Salva o nome customizado da lista
+                customListTitle: document.getElementById('customListTitleInput').value,
                 showFavCheck: document.getElementById('showFavCheck').checked,
+                fontSizeInput: document.getElementById('fontSizeInput').value,
                 columns: {
                     id: document.getElementById('colIdCheck').checked,
                     img: document.getElementById('colImgCheck').checked,
@@ -652,6 +756,7 @@
             const raw = localStorage.getItem('terraria_editor_settings');
             if (!raw) {
                 applyWidthConfiguration();
+                applyFontConfiguration();
                 return;
             }
 
@@ -660,8 +765,9 @@
                 document.getElementById('searchBox').value = settings.searchBox || '';
                 document.getElementById('itemsPerBlock').value = settings.itemsPerBlock || '10';
                 document.getElementById('tableWidthInput').value = settings.tableWidthInput || '1000';
-                document.getElementById('customListTitleInput').value = settings.customListTitle || 'Lista de Itens'; // Restaura o nome customizado
+                document.getElementById('customListTitleInput').value = settings.customListTitle || 'Lista de Itens';
                 document.getElementById('showFavCheck').checked = settings.showFavCheck || false;
+                document.getElementById('fontSizeInput').value = settings.fontSizeInput || '20';
 
                 if (settings.columns) {
                     document.getElementById('colIdCheck').checked = settings.columns.id !== false;
@@ -680,6 +786,7 @@
                 }
 
                 applyWidthConfiguration();
+                applyFontConfiguration();
             } catch (e) {
                 console.error("Erro ao ler dados do localStorage", e);
             }
@@ -688,9 +795,12 @@
         function applyWidthConfiguration() {
             const width = document.getElementById('tableWidthInput').value || 1000;
             const targetElement = document.getElementById('tablesArea');
-            if (targetElement) {
-                targetElement.style.maxWidth = width + "px";
-            }
+            if (targetElement) { targetElement.style.maxWidth = width + "px"; }
+        }
+
+        function applyFontConfiguration() {
+            const size = document.getElementById('fontSizeInput').value || 20;
+            document.documentElement.style.setProperty('--table-font-size', size + 'px');
         }
 
         function resetToDefaultWidth() {
@@ -711,11 +821,9 @@
             document.querySelectorAll('th.th-label-pt').forEach(el => el.innerText = ptLabel);
             document.querySelectorAll('th.th-label-en').forEach(el => el.innerText = enLabel);
             document.querySelectorAll('th.th-label-qtd').forEach(el => el.innerText = qtdLabel);
-
             saveSettingsToStorage();
         }
 
-        // Altera dinamicamente os títulos das listas à medida que o usuário digita
         function updateCustomListTitles() {
             const baseTitle = document.getElementById('customListTitleInput').value || 'Lista de Itens';
             document.querySelectorAll('.table-title').forEach((el, index) => {
@@ -727,9 +835,7 @@
         function saveHistoryState() {
             const clone = JSON.parse(JSON.stringify(loadedItemsRaw));
             undoHistoryStack.push(clone);
-            if (undoHistoryStack.length > 30) {
-                undoHistoryStack.shift();
-            }
+            if (undoHistoryStack.length > 30) undoHistoryStack.shift();
             updateUndoButtonUI();
         }
 
@@ -739,6 +845,102 @@
             buildSegmentedTables();
             updateUndoButtonUI();
         }
+
+        // --- SISTEMA DE AUTOCOMPLETE E ADIÇÃO DE LINHA ---
+
+        const addRowInput = document.getElementById('addRowInput');
+        const dropdown = document.getElementById('autocompleteDropdown');
+
+        // Adiciona um item e reconstrói a tabela
+        function addSpecificItem(id, pt, en) {
+            saveHistoryState();
+            loadedItemsRaw.push({
+                id: parseInt(id),
+                count: 1,
+                isFavorited: false,
+                name_ptbr: pt,
+                name_eng: en
+            });
+            addRowInput.value = '';
+            dropdown.style.display = 'none';
+            buildSegmentedTables();
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        // Função do botão manual
+        function addNewItemManual() {
+            const query = addRowInput.value.toLowerCase().trim();
+            if (!query) return;
+
+            for (const [id, data] of Object.entries(itemDatabase)) {
+                if (id === query || data.pt.toLowerCase() === query || data.en.toLowerCase() === query) {
+                    addSpecificItem(id, data.pt, data.en);
+                    return;
+                }
+            }
+            alert("Item exato não encontrado. Use a lista suspensa para selecionar.");
+        }
+
+        // Evento de digitação para o dropdown
+        addRowInput.addEventListener('input', function () {
+            const query = this.value.toLowerCase().trim();
+            dropdown.innerHTML = '';
+
+            if (!query) {
+                dropdown.style.display = 'none';
+                return;
+            }
+
+            let matches = [];
+            for (const [id, data] of Object.entries(itemDatabase)) {
+                if (id.includes(query) || data.pt.toLowerCase().includes(query) || data.en.toLowerCase().includes(query)) {
+                    matches.push({ id, ...data });
+                    if (matches.length > 40) break; // Limite de resultados para performance
+                }
+            }
+
+            if (matches.length > 0) {
+                matches.forEach(match => {
+                    const div = document.createElement('div');
+                    div.className = 'autocomplete-item';
+
+                    const imgUrl = `sprites/Item_${match.id}.png`;
+
+                    div.innerHTML = `
+                        <img src="${imgUrl}" class="auto-icon" onerror="this.style.display='none'">
+                        <div class="auto-text">
+                            <div>${match.pt} <span class="auto-id">[ID: ${match.id}]</span></div>
+                            <div class="auto-en">${match.en}</div>
+                        </div>
+                    `;
+
+                    div.addEventListener('click', () => {
+                        addSpecificItem(match.id, match.pt, match.en);
+                    });
+
+                    dropdown.appendChild(div);
+                });
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // Fechar o dropdown ao clicar fora dele
+        document.addEventListener('click', function (e) {
+            if (e.target !== addRowInput && e.target !== dropdown) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        addRowInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addNewItemManual();
+            }
+        });
+
+        // --- FIM DO SISTEMA DE AUTOCOMPLETE ---
 
         document.getElementById('invFile').addEventListener('change', function (e) {
             const file = e.target.files[0];
@@ -766,7 +968,6 @@
                         undoHistoryStack = [];
                         updateUndoButtonUI();
                         buildSegmentedTables();
-                        applyWidthConfiguration();
                     } else {
                         alert('Formato de inventário inválido.');
                     }
@@ -786,7 +987,6 @@
             const itemsPerBlock = parseInt(document.getElementById('itemsPerBlock').value) || 10;
             const highlightFavorites = document.getElementById('showFavCheck').checked;
 
-            // Recupera as strings salvas para cabeçalhos e títulos de bloco
             const idLabel = document.getElementById('colIdName').value;
             const imgLabel = document.getElementById('colImgName').value;
             const ptLabel = document.getElementById('colPtName').value;
@@ -800,7 +1000,6 @@
                     item.name_eng.toLowerCase().includes(searchFilter);
             });
 
-            // Atualiza as métricas do contador textual informativo
             const totalItemsCount = loadedItemsRaw.length;
             const filteredItemsCount = filteredItems.length;
             document.getElementById('itemCounterDisplay').innerText = `Exibindo ${filteredItemsCount} de ${totalItemsCount} itens`;
@@ -819,7 +1018,7 @@
 
                 const title = document.createElement('div');
                 title.className = 'table-title';
-                title.innerText = `${customTitleBase} #${blockIndex}`; // Aplica o nome customizado com a ID da lista
+                title.innerText = `${customTitleBase} #${blockIndex}`;
                 wrapper.appendChild(title);
 
                 const tableHolder = document.createElement('div');
@@ -939,9 +1138,8 @@
                             }
                             buildSegmentedTables();
                         } else {
-                            // Se mudar apenas a quantidade, atualiza o contador sem reconstruir a tabela inteira
                             const totalItemsCount = loadedItemsRaw.length;
-                            const filteredItemsCount = container.querySelectorAll('tbody tr').length;
+                            const filteredItemsCount = document.getElementById('tablesArea').querySelectorAll('tbody tr').length;
                             document.getElementById('itemCounterDisplay').innerText = `Exibindo ${filteredItemsCount} de ${totalItemsCount} itens`;
                         }
                     }
@@ -970,7 +1168,6 @@
             input.addEventListener('input', updateTableHeaderLabels);
         });
 
-        // Ouvinte para capturar as mudanças no nome customizado da lista
         document.getElementById('customListTitleInput').addEventListener('input', updateCustomListTitles);
 
         document.getElementById('itemsPerBlock').addEventListener('input', () => { buildSegmentedTables(); saveSettingsToStorage(); });
@@ -982,21 +1179,30 @@
             saveSettingsToStorage();
         });
 
+        document.getElementById('fontSizeInput').addEventListener('input', () => {
+            applyFontConfiguration();
+            saveSettingsToStorage();
+        });
+
+        // SOLUÇÃO ESTÁVEL PARA O PNG UNIFICADO
         function downloadTablesImage() {
             const btn = document.getElementById('printBtnButton');
             const oldText = btn.innerText;
             btn.innerText = "Salvando...";
             btn.disabled = true;
 
-            const target = document.getElementById('tablesArea');
-            target.classList.add('hide-actions');
+            const targetArea = document.getElementById('tablesArea');
+            const wrappers = targetArea.querySelectorAll('.table-wrapper');
+
+            targetArea.classList.add('hide-actions');
+            wrappers.forEach(w => w.classList.add('is-printing')); // Aplica o fundo sólido temporário
 
             setTimeout(() => {
-                html2canvas(target, {
-                    useCORS: false,
+                html2canvas(targetArea, {
+                    useCORS: true,
                     allowTaint: false,
                     logging: false,
-                    backgroundColor: '#1c243c',
+                    backgroundColor: '#0f1423',
                     scale: 2
                 }).then(canvas => {
                     const link = document.createElement('a');
@@ -1004,12 +1210,14 @@
                     link.href = canvas.toDataURL('image/png');
                     link.click();
 
-                    target.classList.remove('hide-actions');
+                    targetArea.classList.remove('hide-actions');
+                    wrappers.forEach(w => w.classList.remove('is-printing')); // Remove o fundo sólido
                     btn.innerText = oldText;
                     btn.disabled = false;
                 }).catch(err => {
-                    target.classList.remove('hide-actions');
-                    alert("Erro ao exportar o PNG.");
+                    targetArea.classList.remove('hide-actions');
+                    wrappers.forEach(w => w.classList.remove('is-printing'));
+                    alert("Erro ao exportar o PNG unificado.");
                     btn.innerText = oldText;
                     btn.disabled = false;
                 });
