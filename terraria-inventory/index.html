@@ -110,6 +110,7 @@
 
         .controls-row {
             display: flex;
+            justify-content: space-between;
             align-items: center;
             gap: 15px;
             flex-wrap: wrap;
@@ -215,6 +216,21 @@
             white-space: nowrap;
         }
 
+        .star-btn {
+            cursor: pointer;
+            font-size: 28px;
+            color: #444;
+            /* Cinza para não favorito */
+            transition: color 0.1s;
+            user-select: none;
+        }
+
+        .star-btn.active {
+            color: #ffeb3b;
+            /* Amarelo para favorito */
+            text-shadow: 0 0 5px #ffeb3b;
+        }
+
         .add-item-btn:hover {
             background-color: #388e3c;
         }
@@ -306,6 +322,7 @@
         .toggle-title {
             color: var(--accent-color);
             align-self: center;
+            font-size: 20px;
         }
 
         .options-box {
@@ -314,6 +331,7 @@
             gap: 6px;
             user-select: none;
             cursor: pointer;
+            font-size: 20px;
         }
 
         .options-box input[type="checkbox"] {
@@ -322,6 +340,7 @@
             height: 18px;
             accent-color: var(--accent-color);
             margin: 0;
+
         }
 
         .col-name-input {
@@ -536,7 +555,7 @@
         .delete-btn {
             color: #ff4a4a;
             cursor: pointer;
-            font-size: 24px;
+            font-size: 42px;
             text-align: center;
             user-select: none;
             transition: transform 0.1s;
@@ -573,6 +592,21 @@
 
         .hide-actions .col-action {
             display: none !important;
+        }
+
+        .col-action-order {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .col-action-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
         }
 
         .star {
@@ -678,15 +712,16 @@
                     Destacar favoritos
                 </label>
 
-                <div class="block-config" style="margin-left: auto;">
-                    <span>Fonte (px):</span>
-                    <input type="number" id="fontSizeInput" value="20" min="12" max="36" style="width: 60px;">
-                </div>
+
             </div>
 
             <hr class="divider">
 
             <div class="controls-row">
+                <div class="block-config"">
+                    <span>Fonte (px):</span>
+                    <input type=" number" id="fontSizeInput" value="20" min="12" max="36" style="width: 60px;">
+                </div>
                 <div class="block-config">
                     <span>Itens por lista:</span>
                     <input type="number" id="itemsPerBlock" value="10" min="1">
@@ -698,9 +733,9 @@
                 </div>
                 <button class="reset-width-btn" onclick="resetToDefaultWidth()">Padrão</button>
 
-                <div class="block-config" style="margin-left: auto;">
+                <div class="block-config"">
                     <span>Título:</span>
-                    <input type="text" id="customListTitleInput" class="list-title-input" value="Lista de Itens">
+                    <input type=" text" id="customListTitleInput" class="list-title-input" value="Lista de Itens">
                 </div>
             </div>
 
@@ -1154,7 +1189,7 @@
 
                     const row = document.createElement('tr');
                     if (item.isFavorited) row.className = 'favorited';
-
+                    const isFav = item.isFavorited ? 'active' : '';
                     // Desabilitar botões Up/Down nos limites
                     const isFirst = globalIndex === 0;
                     const isLast = globalIndex === loadedItemsRaw.length - 1;
@@ -1170,9 +1205,14 @@
                     <td class="col-en" contenteditable="true" data-field="name_eng" data-index="${globalIndex}"><span style="opacity: 0.7; font-style: italic;">${item.name_eng}</span></td>
                     <td class="col-qtd text-right" contenteditable="true" data-field="count" data-index="${globalIndex}">${formattedCount}</td>
                     <td class="col-action text-center">
-                        <button class="move-btn" onclick="moveItemUp(${globalIndex})" ${isFirst ? 'disabled' : ''} title="Subir">▲</button>
-                        <button class="move-btn" onclick="moveItemDown(${globalIndex})" ${isLast ? 'disabled' : ''} title="Descer">▼</button>
-                        <span class="delete-btn" onclick="removeItemFromInventory(${globalIndex})" title="Remover">×</span>
+                        <div class="col-action-container text-center">
+                            <span class="star-btn ${isFav}" onclick="toggleFavorite(${globalIndex})" title="Favoritar">★</span>
+                            <div class="col-action-order">
+                                <button class="move-btn" onclick="moveItemUp(${globalIndex})" ${isFirst ? 'disabled' : ''} title="Subir">▲</button>
+                                <button class="move-btn" onclick="moveItemDown(${globalIndex})" ${isLast ? 'disabled' : ''} title="Descer">▼</button>                
+                            </div>
+                            <span class="delete-btn" onclick="removeItemFromInventory(${globalIndex})" title="Remover">×</span>
+                        </div>
                     </td>
                 `;
                     tbody.appendChild(row);
@@ -1302,7 +1342,15 @@
             const filteredItemsCount = document.querySelectorAll('#tablesArea tbody tr').length;
             document.getElementById('itemCounterDisplay').innerText = `Exibindo ${filteredItemsCount} de ${totalItemsCount} itens`;
         }
+        function toggleFavorite(globalIndex) {
+            saveHistoryState(); // Garante que você possa desfazer a mudança
 
+            // Inverte o estado atual
+            loadedItemsRaw[globalIndex].isFavorited = !loadedItemsRaw[globalIndex].isFavorited;
+
+            // Reconstrói a tabela para refletir a mudança visual
+            buildSegmentedTables();
+        }
         // --- SISTEMA DE CAPTURA HTML2CANVAS ---
         function downloadTablesImage() {
             if (loadedItemsRaw.length === 0) {
