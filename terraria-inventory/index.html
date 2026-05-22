@@ -22,6 +22,7 @@
             --slot-bg: #141929;
             --radius: 10px;
             --table-font-size: 20px;
+            --icon-size: 32px;
         }
 
         body {
@@ -625,8 +626,9 @@
         }
 
         .item-sprite {
-            max-width: 32px;
-            height: 32px;
+            max-width: var(--icon-size);
+            height: var(--icon-size);
+
             width: auto;
             display: block;
             margin: 0 auto;
@@ -722,6 +724,10 @@
                 <div class="block-config"">
                     <span>Fonte (px):</span>
                     <input type=" number" id="fontSizeInput" value="20" min="12" max="36" style="width: 60px;">
+                </div>
+                <div class="block-config" style="margin-left: 10px;">
+                    <span>Ícone (px):</span>
+                    <input type="number" id="iconSizeInput" value="32" min="16" max="64" style="width: 60px;">
                 </div>
                 <div class="block-config">
                     <span>Itens por lista:</span>
@@ -828,6 +834,7 @@
                 customListTitle: document.getElementById('customListTitleInput').value,
                 showFavCheck: document.getElementById('showFavCheck').checked,
                 fontSizeInput: document.getElementById('fontSizeInput').value,
+                iconSizeInput: document.getElementById('iconSizeInput')?.value || '32',
                 columns: {
                     id: document.getElementById('colIdCheck').checked,
                     img: document.getElementById('colImgCheck').checked,
@@ -862,6 +869,8 @@
                 document.getElementById('customListTitleInput').value = settings.customListTitle || 'Lista de Itens';
                 document.getElementById('showFavCheck').checked = settings.showFavCheck || false;
                 document.getElementById('fontSizeInput').value = settings.fontSizeInput || '20';
+                document.getElementById('iconSizeInput').value = settings.iconSizeInput || '32';
+
 
                 if (settings.columns) {
                     document.getElementById('colIdCheck').checked = settings.columns.id !== false;
@@ -896,7 +905,10 @@
             const size = document.getElementById('fontSizeInput').value || 20;
             document.documentElement.style.setProperty('--table-font-size', size + 'px');
         }
-
+        function applyIconSizeConfiguration() {
+            const size = document.getElementById('iconSizeInput')?.value || 32;
+            document.documentElement.style.setProperty('--icon-size', size + 'px');
+        }
         function resetToDefaultWidth() {
             document.getElementById('tableWidthInput').value = 1000;
             applyWidthConfiguration();
@@ -1325,6 +1337,11 @@
 
         document.getElementById('fontSizeInput').addEventListener('input', () => {
             applyFontConfiguration();
+            saveSettingsToStorage();
+        });
+
+        document.getElementById('fontSizeInput').addEventListener('input', () => {
+            applyIconSizeConfiguration();
             saveSettingsToStorage();
         });
 
