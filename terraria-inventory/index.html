@@ -628,7 +628,6 @@
         .item-sprite {
             max-width: var(--icon-size);
             height: var(--icon-size);
-
             width: auto;
             display: block;
             margin: 0 auto;
@@ -723,7 +722,7 @@
             <div class="controls-row">
                 <div class="block-config"">
                     <span>Fonte (px):</span>
-                    <input type="number" id="fontSizeInput" value="20" min="12" max="36" style="width: 60px;">
+                    <input type=" number" id="fontSizeInput" value="20" min="12" max="36" style="width: 60px;">
                 </div>
                 <div class="block-config">
                     <span>Ícone (px):</span>
@@ -858,6 +857,7 @@
             if (!raw) {
                 applyWidthConfiguration();
                 applyFontConfiguration();
+                applyIconSizeConfiguration();
                 return;
             }
 
@@ -890,6 +890,7 @@
 
                 applyWidthConfiguration();
                 applyFontConfiguration();
+                applyIconSizeConfiguration();
             } catch (e) {
                 console.error("Erro ao ler dados do localStorage", e);
             }
@@ -1241,6 +1242,7 @@
             attachEditEvents();
             applyWidthConfiguration();
             applyFontConfiguration();
+            applyIconSizeConfiguration();
         }
 
         function updateColumnVisibility() {
