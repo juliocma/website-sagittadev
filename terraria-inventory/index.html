@@ -7,10 +7,8 @@
     <title>Terraria Inventory Editor - Deluxe</title>
 
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-
     <link href="https://fonts.cdnfonts.com/css/andy" rel="stylesheet">
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="libs/html2canvas-pro.js"></script>
 
     <style>
         :root {
@@ -24,7 +22,7 @@
             --slot-bg: #141929;
             --radius: 10px;
             --table-font-size: 20px;
-            --icon-size: 32px;
+            --icon-size: 1.0;
         }
 
         body {
@@ -40,7 +38,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Estrutura Fixa dos Painéis Superiores (1000px estáveis) */
         .block-panel {
             width: 100%;
             max-width: 1000px;
@@ -224,12 +221,14 @@
             cursor: pointer;
             font-size: 28px;
             color: #444;
+            /* Cinza para não favorito */
             transition: color 0.1s;
             user-select: none;
         }
 
         .star-btn.active {
             color: #ffeb3b;
+            /* Amarelo para favorito */
             text-shadow: 0 0 5px #ffeb3b;
         }
 
@@ -283,13 +282,22 @@
             background-color: var(--row-hover);
         }
 
-        .auto-icon {
+        .auto-icon-wrapper {
             width: 32px;
             height: 32px;
-            object-fit: contain;
-            aspect-ratio: 1;
-            image-rendering: pixelated;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .auto-icon {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
             filter: drop-shadow(2px 2px 0px #000);
+            image-rendering: pixelated;
         }
 
         .auto-text {
@@ -343,6 +351,7 @@
             height: 18px;
             accent-color: var(--accent-color);
             margin: 0;
+
         }
 
         .col-name-input {
@@ -570,6 +579,7 @@
             transform: scale(1.2);
         }
 
+        /* Botões de Ordenação */
         .move-btn {
             background: #3b4b7c;
             border: 1px solid #232d4b;
@@ -624,17 +634,25 @@
             font-family: monospace;
         }
 
-        /* Correção para evitar distorção de proporção na hora da impressão */
+        .icon-wrapper {
+
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+        }
+
         .item-sprite {
-            max-width: var(--icon-size);
-            max-height: var(--icon-size);
-            min-height: var(--icon-size);
+            max-width: 100%;
+            max-height: 100%;
             width: auto;
             height: auto;
             display: block;
-            margin: 0 auto;
             filter: drop-shadow(2px 2px 0px #000);
             image-rendering: pixelated;
+            zoom: var(--icon-size);
         }
 
         .text-center {
@@ -716,20 +734,21 @@
                     Destacar favoritos
                 </label>
 
-                <div class="block-config" style="margin-left: auto;">
-                    <span>Fonte (px):</span>
-                    <input type="number" id="fontSizeInput" value="20" min="12" max="36" style="width: 60px;">
-                </div>
 
-                <div class="block-config" style="margin-left: 10px;">
-                    <span>Ícone (px):</span>
-                    <input type="number" id="iconSizeInput" value="32" min="16" max="128" style="width: 60px;">
-                </div>
             </div>
 
             <hr class="divider">
 
             <div class="controls-row">
+                <div class="block-config"">
+                    <span>Fonte (px):</span>
+                    <input type=" number" id="fontSizeInput" value="16" min="12" max="128" style="width: 60px;">
+                </div>
+                <div class="block-config">
+                    <span>Ícone (x1):</span>
+                    <input type="number" id="iconSizeInput" value="1.1" min="0.1" max="10.0" step="0.1"
+                        style="width: 60px;">
+                </div>
                 <div class="block-config">
                     <span>Itens por lista:</span>
                     <input type="number" id="itemsPerBlock" value="10" min="1">
@@ -741,9 +760,9 @@
                 </div>
                 <button class="reset-width-btn" onclick="resetToDefaultWidth()">Padrão</button>
 
-                <div class="block-config" style="margin-left: auto;">
+                <div class="block-config"">
                     <span>Título:</span>
-                    <input type="text" id="customListTitleInput" class="list-title-input" value="Lista de Itens">
+                    <input type=" text" id="customListTitleInput" class="list-title-input" value="Lista de Itens">
                 </div>
             </div>
 
@@ -835,7 +854,7 @@
                 customListTitle: document.getElementById('customListTitleInput').value,
                 showFavCheck: document.getElementById('showFavCheck').checked,
                 fontSizeInput: document.getElementById('fontSizeInput')?.value || '20',
-                iconSizeInput: document.getElementById('iconSizeInput')?.value || '32',
+                iconSizeInput: document.getElementById('iconSizeInput')?.value || '1.0',
                 columns: {
                     id: document.getElementById('colIdCheck').checked,
                     img: document.getElementById('colImgCheck').checked,
@@ -870,13 +889,8 @@
                 document.getElementById('tableWidthInput').value = settings.tableWidthInput || '1000';
                 document.getElementById('customListTitleInput').value = settings.customListTitle || 'Lista de Itens';
                 document.getElementById('showFavCheck').checked = settings.showFavCheck || false;
-
-                if (document.getElementById('fontSizeInput')) {
-                    document.getElementById('fontSizeInput').value = settings.fontSizeInput || '20';
-                }
-                if (document.getElementById('iconSizeInput')) {
-                    document.getElementById('iconSizeInput').value = settings.iconSizeInput || '32';
-                }
+                document.getElementById('fontSizeInput').value = settings.fontSizeInput || '20';
+                document.getElementById('iconSizeInput').value = settings.iconSizeInput || '1.0';
 
                 if (settings.columns) {
                     document.getElementById('colIdCheck').checked = settings.columns.id !== false;
@@ -905,21 +919,17 @@
         function applyWidthConfiguration() {
             const width = document.getElementById('tableWidthInput').value || 1000;
             const targetElement = document.getElementById('tablesArea');
-            if (targetElement) {
-                targetElement.style.maxWidth = width + "px";
-            }
+            if (targetElement) { targetElement.style.maxWidth = width + "px"; }
         }
 
         function applyFontConfiguration() {
-            const size = document.getElementById('fontSizeInput')?.value || 20;
+            const size = document.getElementById('fontSizeInput').value || 20;
             document.documentElement.style.setProperty('--table-font-size', size + 'px');
         }
-
         function applyIconSizeConfiguration() {
-            const size = document.getElementById('iconSizeInput')?.value || 32;
-            document.documentElement.style.setProperty('--icon-size', size + 'px');
+            const size = document.getElementById('iconSizeInput')?.value || 1.0;
+            document.documentElement.style.setProperty('--icon-size', size);
         }
-
         function resetToDefaultWidth() {
             document.getElementById('tableWidthInput').value = 1000;
             applyWidthConfiguration();
@@ -938,7 +948,6 @@
             document.querySelectorAll('th.th-label-pt').forEach(el => el.innerText = ptLabel);
             document.querySelectorAll('th.th-label-en').forEach(el => el.innerText = enLabel);
             document.querySelectorAll('th.th-label-qtd').forEach(el => el.innerText = qtdLabel);
-
             saveSettingsToStorage();
         }
 
@@ -953,9 +962,7 @@
         function saveHistoryState() {
             const clone = JSON.parse(JSON.stringify(loadedItemsRaw));
             undoHistoryStack.push(clone);
-            if (undoHistoryStack.length > 30) {
-                undoHistoryStack.shift();
-            }
+            if (undoHistoryStack.length > 30) undoHistoryStack.shift();
             updateUndoButtonUI();
         }
 
@@ -1029,7 +1036,9 @@
                     const imgUrl = `sprites/Item_${match.id}.png`;
 
                     div.innerHTML = `
-                        <img src="${imgUrl}" class="auto-icon" onerror="this.style.display='none'">
+                        <div class="auto-icon-wrapper">
+                            <img src="${imgUrl}" class="auto-icon" onerror="this.parentElement.style.display='none'">
+                        </div>
                         <div class="auto-text">
                             <div>${match.pt} <span class="auto-id">[ID: ${match.id}]</span></div>
                             <div class="auto-en">${match.en}</div>
@@ -1224,7 +1233,10 @@
                     row.innerHTML = `
                     <td class="col-id text-right" contenteditable="true" data-field="id" data-index="${globalIndex}"><span class="id-badge">${item.id}</span></td>
                     <td class="col-img text-center">
-                        ${item.name_eng !== "Unknown Item" ? `<img class="item-sprite" src="${imageUrl}" alt="${item.name_eng}" onerror="this.removeAttribute('onerror'); this.style.display='none';">` : ''}
+                        ${item.name_eng !== "Unknown Item" ? `
+                        <div class="icon-wrapper">
+                            <img class="item-sprite" src="${imageUrl}" alt="${item.name_eng}" onerror="this.parentElement.style.display='none';">
+                        </div>` : ''}
                     </td>
                     <td class="col-pt" contenteditable="true" data-field="name_ptbr" data-index="${globalIndex}">
                         <span class="star">★</span><strong>${item.name_ptbr}</strong>
@@ -1255,7 +1267,6 @@
             attachEditEvents();
             applyWidthConfiguration();
             applyFontConfiguration();
-            applyIconSizeConfiguration();
         }
 
         function updateColumnVisibility() {
@@ -1350,21 +1361,16 @@
             saveSettingsToStorage();
         });
 
-        const fontEl = document.getElementById('fontSizeInput');
-        if (fontEl) {
-            fontEl.addEventListener('input', () => {
-                applyFontConfiguration();
-                saveSettingsToStorage();
-            });
-        }
+        document.getElementById('fontSizeInput').addEventListener('input', () => {
+            applyFontConfiguration();
+            saveSettingsToStorage();
+        });
+        document.getElementById('iconSizeInput').addEventListener('input', () => {
+            applyIconSizeConfiguration();
+            saveSettingsToStorage();
+        });
 
-        const iconEl = document.getElementById('iconSizeInput');
-        if (iconEl) {
-            iconEl.addEventListener('input', () => {
-                applyIconSizeConfiguration();
-                saveSettingsToStorage();
-            });
-        }
+
 
         function removeItemFromInventory(globalIndex) {
             saveHistoryState();
@@ -1390,7 +1396,6 @@
             // Reconstrói a tabela para refletir a mudança visual
             buildSegmentedTables();
         }
-
         // --- SISTEMA DE CAPTURA HTML2CANVAS ---
         function downloadTablesImage() {
             if (loadedItemsRaw.length === 0) {
@@ -1404,106 +1409,50 @@
             btn.disabled = true;
 
             const targetArea = document.getElementById('tablesArea');
-            const separateMode = document.getElementById('separateListCheck')?.checked || false;
-
             targetArea.classList.add('hide-actions');
 
-            if (separateMode) {
-                const wrappers = targetArea.querySelectorAll('.table-wrapper');
-                if (wrappers.length === 0) {
+            const wrappers = targetArea.querySelectorAll('.table-wrapper');
+            wrappers.forEach(w => w.classList.add('is-printing')); // Força a remoção de sombra para a captura limpa
+
+            setTimeout(() => {
+
+                html2canvas(targetArea, {
+                    useCORS: true,
+                    allowTaint: false,
+                    logging: false,
+                    backgroundColor: '#0f1423',
+                    scale: 2,
+
+                    onclone: function (clonedDoc) {
+                        const clonedArea = clonedDoc.getElementById('tablesArea');
+                        clonedArea.style.background = "#0f1423 url('https://www.transparenttextures.com/patterns/black-thread.png')";
+                        clonedArea.style.padding = '30px';
+                        clonedArea.style.boxSizing = 'border-box';
+
+
+                        const clonedWrappers = clonedArea.querySelectorAll('.table-wrapper');
+                        if (clonedWrappers.length > 0) {
+                            clonedWrappers[clonedWrappers.length - 1].style.marginBottom = '0';
+                        }
+                    }
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'meu_inventario_terraria.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+
                     targetArea.classList.remove('hide-actions');
-                    btn.innerText = oldText;
-                    btn.disabled = false;
-                    return;
-                }
-
-                let sequence = Promise.resolve();
-
-                wrappers.forEach((block, idx) => {
-                    sequence = sequence.then(() => {
-                        // Injetamos a cor e o padding corretos num CLONE VIRTUAL não destrutivo do painel completo
-                        return html2canvas(targetArea, {
-                            useCORS: true, // Garante permissão para texturas externas
-                            allowTaint: false,
-                            logging: false,
-                            backgroundColor: '#0f1423',
-                            scale: 2,
-                            onclone: function (clonedDoc) {
-                                const clonedArea = clonedDoc.getElementById('tablesArea');
-
-                                // O Segredo: Copia a textura rica original do body pro fundo do clone
-                                clonedArea.style.background = "#0f1423 url('https://www.transparenttextures.com/patterns/black-thread.png')";
-                                clonedArea.style.padding = '30px';
-                                clonedArea.style.boxSizing = 'border-box';
-
-                                // Esconde as outras listas, deixando apenas a do índice atual visível 
-                                const clonedWrappers = clonedArea.querySelectorAll('.table-wrapper');
-                                clonedWrappers.forEach((w, i) => {
-                                    if (i !== idx) {
-                                        w.style.display = 'none';
-                                    } else {
-                                        w.style.marginBottom = '0'; // Tira o espaço extra de baixo apenas da ativa
-                                    }
-                                });
-                            }
-                        }).then(canvas => {
-                            const link = document.createElement('a');
-                            link.download = `lista_itens_parte_${idx + 1}.png`;
-                            link.href = canvas.toDataURL('image/png');
-                            link.click();
-                        });
-                    });
-                });
-
-                sequence.then(() => {
-                    targetArea.classList.remove('hide-actions');
+                    wrappers.forEach(w => w.classList.remove('is-printing'));
                     btn.innerText = oldText;
                     btn.disabled = false;
                 }).catch(err => {
                     targetArea.classList.remove('hide-actions');
-                    alert("Erro ao exportar as listas separadas.");
+                    wrappers.forEach(w => w.classList.remove('is-printing'));
+                    alert("Erro ao exportar o PNG.");
                     btn.innerText = oldText;
                     btn.disabled = false;
                 });
-
-            } else {
-                // Modo Completo Unificado
-                setTimeout(() => {
-                    html2canvas(targetArea, {
-                        useCORS: true,
-                        allowTaint: false,
-                        logging: false,
-                        backgroundColor: '#0f1423',
-                        scale: 2,
-                        onclone: function (clonedDoc) {
-                            const clonedArea = clonedDoc.getElementById('tablesArea');
-                            clonedArea.style.background = "#0f1423 url('https://www.transparenttextures.com/patterns/black-thread.png')";
-                            clonedArea.style.padding = '30px';
-                            clonedArea.style.boxSizing = 'border-box';
-
-                            // Remove a margem final para o recorte de padding ficar nivelado
-                            const wrappers = clonedArea.querySelectorAll('.table-wrapper');
-                            if (wrappers.length > 0) {
-                                wrappers[wrappers.length - 1].style.marginBottom = '0';
-                            }
-                        }
-                    }).then(canvas => {
-                        const link = document.createElement('a');
-                        link.download = 'meu_inventario_terraria.png';
-                        link.href = canvas.toDataURL('image/png');
-                        link.click();
-
-                        targetArea.classList.remove('hide-actions');
-                        btn.innerText = oldText;
-                        btn.disabled = false;
-                    }).catch(err => {
-                        targetArea.classList.remove('hide-actions');
-                        alert("Erro ao exportar o PNG unificado.");
-                        btn.innerText = oldText;
-                        btn.disabled = false;
-                    });
-                }, 100);
-            }
+            }, 100);
         }
     </script>
 
