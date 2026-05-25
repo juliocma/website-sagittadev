@@ -673,6 +673,11 @@
             opacity: 0.9;
         }
 
+        .col-action-container {
+            display: flex;
+            gap: 8px;
+        }
+
         /* Classes de ocultação controladas dinamicamente pelas Toggles */
         .hide-col-id .col-id {
             display: none;
@@ -1004,14 +1009,17 @@
         const dropdown = document.getElementById('autocompleteDropdown');
 
         function addSpecificItem(id, pt, en) {
+            let count = '1';
+            if (id === '-1') count = ''
             saveHistoryState();
             loadedItemsRaw.push({
                 id: parseInt(id),
-                count: 1,
+                count,
                 isFavorited: false,
                 name_ptbr: pt,
                 name_eng: en
             });
+
             addRowInput.value = '';
             dropdown.style.display = 'none';
             buildSegmentedTables();
@@ -1247,7 +1255,10 @@
 
                 chunk.forEach((item) => {
                     const globalIndex = loadedItemsRaw.indexOf(item);
-                    const formattedCount = Number(item.count).toLocaleString('pt-BR');
+                    let formattedCount = Number(item.count).toLocaleString('pt-BR');
+
+                    if (item.count === '') formattedCount = ''
+
                     let imageUrl = `sprites/Item_${item.id}.png`;
 
                     const row = document.createElement('tr');
@@ -1280,11 +1291,11 @@
                     <td class="col-action text-center">
                         <div class="col-action-container text-center">
                             <span class="star-btn ${isFav}" onclick="toggleFavorite(${globalIndex})" title="Favoritar">★</span>
+                            <span class="delete-btn" onclick="removeItemFromInventory(${globalIndex})" title="Remover">×</span>
                             <div class="col-action-order">
                                 <button class="move-btn" onclick="moveItemUp(${globalIndex})" ${isFirst ? 'disabled' : ''} title="Subir">▲</button>
                                 <button class="move-btn" onclick="moveItemDown(${globalIndex})" ${isLast ? 'disabled' : ''} title="Descer">▼</button>                
                             </div>
-                            <span class="delete-btn" onclick="removeItemFromInventory(${globalIndex})" title="Remover">×</span>
                         </div>
                     </td>
                 `;
@@ -1369,6 +1380,7 @@
                             document.getElementById('itemCounterDisplay').innerText = `Exibindo ${filteredItemsCount} de ${totalItemsCount} itens`;
                         }
                     }
+
                 });
 
                 cell.addEventListener('keydown', function (e) {
