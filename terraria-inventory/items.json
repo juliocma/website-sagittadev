@@ -2,6 +2,11 @@
     "version": "1.4.5.6",
     "items": [
         {
+            "id": -1,
+            "en": " ",
+            "pt_br": " "
+        },
+        {
             "id": 1,
             "en": "Iron Pickaxe",
             "pt_br": "Picareta de Ferro"
