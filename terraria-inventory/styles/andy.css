@@ -1,0 +1,6 @@
+@font-face {
+    font-family: 'Andy';
+    font-style: normal;
+    font-weight: 700;
+    src: local('Andy'), url('../fonts/Andy_Bold_0.woff') format('woff');
+}

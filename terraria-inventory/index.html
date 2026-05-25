@@ -7,8 +7,8 @@
     <title>Terraria Inventory Editor - Deluxe</title>
 
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link href="https://fonts.cdnfonts.com/css/andy" rel="stylesheet">
-    <script src="libs/html2canvas-pro.js"></script>
+    <link href="styles/andy.css" rel="stylesheet">
+    <script src="libs/html-to-image.min.js"></script>
 
     <style>
         :root {
@@ -221,14 +221,12 @@
             cursor: pointer;
             font-size: 28px;
             color: #444;
-            /* Cinza para não favorito */
             transition: color 0.1s;
             user-select: none;
         }
 
         .star-btn.active {
             color: #ffeb3b;
-            /* Amarelo para favorito */
             text-shadow: 0 0 5px #ffeb3b;
         }
 
@@ -241,7 +239,6 @@
             box-shadow: none;
         }
 
-        /* ESTILOS DO DROPDOWN (AUTOCOMPLETE) */
         .autocomplete-container {
             position: relative;
             flex: 1;
@@ -351,7 +348,6 @@
             height: 18px;
             accent-color: var(--accent-color);
             margin: 0;
-
         }
 
         .col-name-input {
@@ -494,16 +490,18 @@
             max-width: 1000px;
             margin: 0 auto;
             transition: max-width 0.1s ease;
+            box-sizing: border-box;
         }
 
         .table-wrapper {
-            margin-bottom: 30px;
+            margin-bottom: 32px;
             background-color: var(--container-bg);
-            padding: 20px 25px;
+            padding: 28px 28px;
             border-radius: var(--radius);
             border: 4px solid #2d3b68;
             box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 8px 25px rgba(0, 0, 0, 0.7);
         }
+
 
         .table-title {
             font-size: 24px;
@@ -528,10 +526,11 @@
 
         th,
         td {
-            padding: 10px 15px;
+            padding: 14px 18px;
             text-align: left;
             text-shadow: 2px 2px 0px #000;
             vertical-align: middle;
+            padding-right: 24px;
         }
 
         th {
@@ -544,6 +543,8 @@
         td {
             border-bottom: 1px solid var(--border-color);
             font-size: var(--table-font-size);
+            height: calc(55px * var(--icon-size));
+            box-sizing: border-box;
         }
 
         tr:last-child td {
@@ -554,13 +555,14 @@
             background-color: var(--row-hover);
         }
 
-        td[contenteditable="true"] {
+        [contenteditable="true"] {
             cursor: text;
         }
 
-        td[contenteditable="true"]:focus {
+        [contenteditable="true"]:focus {
             background-color: rgba(255, 255, 255, 0.08) !important;
             outline: none;
+            border-radius: 4px;
         }
 
         .delete-btn {
@@ -579,7 +581,6 @@
             transform: scale(1.2);
         }
 
-        /* Botões de Ordenação */
         .move-btn {
             background: #3b4b7c;
             border: 1px solid #232d4b;
@@ -601,32 +602,20 @@
             cursor: not-allowed;
         }
 
-        .hide-actions .col-action {
-            display: none !important;
-        }
-
-        .col-action-order {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .col-action-container {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
         .star {
             display: none;
         }
 
         .show-fav .favorited {
-            color: #ffeb3b;
             background-color: rgba(218, 174, 59, 0.05);
+        }
+
+        .show-fav .favorited .primary-text {
+            color: #ffeb3b !important;
+        }
+
+        .show-fav .favorited .secondary-text {
+            color: #cca625 !important;
         }
 
         .id-badge {
@@ -635,9 +624,8 @@
         }
 
         .icon-wrapper {
-
-            width: 100%;
-            height: 100%;
+            width: calc(48px * var(--icon-size));
+            height: calc(48px * var(--icon-size));
             display: flex;
             justify-content: center;
             align-items: center;
@@ -652,7 +640,8 @@
             display: block;
             filter: drop-shadow(2px 2px 0px #000);
             image-rendering: pixelated;
-            zoom: var(--icon-size);
+            transform: scale(var(--icon-size));
+            transform-origin: center center;
         }
 
         .text-center {
@@ -663,6 +652,28 @@
             text-align: right;
         }
 
+        .col-name-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            justify-content: center;
+        }
+
+        .primary-text {
+            font-size: var(--table-font-size);
+            color: var(--text-color);
+            font-weight: bold;
+        }
+
+        .secondary-text {
+            font-size: calc(var(--table-font-size) - 4px);
+            color: #a0a6b8;
+            font-weight: normal;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        /* Classes de ocultação controladas dinamicamente pelas Toggles */
         .hide-col-id .col-id {
             display: none;
         }
@@ -671,21 +682,20 @@
             display: none;
         }
 
-        .hide-col-pt .col-pt {
-            display: none;
-        }
-
-        .hide-col-en .col-en {
-            display: none;
-        }
-
         .hide-col-qtd .col-qtd {
             display: none;
         }
 
-        .is-printing {
-            background-color: #181c31 !important;
-            box-shadow: none !important;
+        .hide-col-action .col-action {
+            display: none !important;
+        }
+
+        .hide-col-pt .name-pt {
+            display: none !important;
+        }
+
+        .hide-col-en .name-en {
+            display: none !important;
         }
 
         .empty-state {
@@ -733,16 +743,14 @@
                     <span class="control-star">★</span>
                     Destacar favoritos
                 </label>
-
-
             </div>
 
             <hr class="divider">
 
             <div class="controls-row">
-                <div class="block-config"">
+                <div class="block-config">
                     <span>Fonte (px):</span>
-                    <input type=" number" id="fontSizeInput" value="16" min="12" max="128" style="width: 60px;">
+                    <input type="number" id="fontSizeInput" value="16" min="12" max="128" style="width: 60px;">
                 </div>
                 <div class="block-config">
                     <span>Ícone (x1):</span>
@@ -760,9 +768,9 @@
                 </div>
                 <button class="reset-width-btn" onclick="resetToDefaultWidth()">Padrão</button>
 
-                <div class="block-config"">
+                <div class="block-config">
                     <span>Título:</span>
-                    <input type=" text" id="customListTitleInput" class="list-title-input" value="Lista de Itens">
+                    <input type="text" id="customListTitleInput" class="list-title-input" value="Lista de Itens">
                 </div>
             </div>
 
@@ -771,6 +779,12 @@
             <div class="controls-row">
                 <div class="column-toggles">
                     <span class="toggle-title">Colunas:</span>
+
+                    <div class="options-box">
+                        <input type="checkbox" id="invertLangCheck">
+                        <span style="color: var(--accent-color);">Inverter Idioma Principal</span>
+                    </div>
+
                     <div class="options-box">
                         <input type="checkbox" id="colIdCheck" checked data-col="id">
                         <input type="text" id="colIdName" class="col-name-input" value="ID">
@@ -790,6 +804,10 @@
                     <div class="options-box">
                         <input type="checkbox" id="colQtdCheck" checked data-col="qtd">
                         <input type="text" id="colQtdName" class="col-name-input" value="Qtd">
+                    </div>
+                    <div class="options-box">
+                        <input type="checkbox" id="colActionCheck" checked data-col="action">
+                        <input type="text" id="colActionName" class="col-name-input" value="Ação">
                     </div>
                 </div>
             </div>
@@ -820,6 +838,7 @@
         let itemDatabase = {};
         let loadedItemsRaw = [];
         let undoHistoryStack = [];
+        let fileName = 'inventory'
 
         async function loadExternalDatabase() {
             try {
@@ -837,7 +856,7 @@
                     console.log("Banco de dados local sincronizado!");
 
                     loadSettingsFromStorage();
-                    buildSegmentedTables(); // Constrói a tela inicial (vazia)
+                    buildSegmentedTables();
                 }
             } catch (err) {
                 console.error("Erro ao carregar items.json: ", err);
@@ -853,6 +872,7 @@
                 tableWidthInput: document.getElementById('tableWidthInput').value,
                 customListTitle: document.getElementById('customListTitleInput').value,
                 showFavCheck: document.getElementById('showFavCheck').checked,
+                invertLangCheck: document.getElementById('invertLangCheck').checked,
                 fontSizeInput: document.getElementById('fontSizeInput')?.value || '20',
                 iconSizeInput: document.getElementById('iconSizeInput')?.value || '1.0',
                 columns: {
@@ -860,14 +880,16 @@
                     img: document.getElementById('colImgCheck').checked,
                     pt: document.getElementById('colPtCheck').checked,
                     en: document.getElementById('colEnCheck').checked,
-                    qtd: document.getElementById('colQtdCheck').checked
+                    qtd: document.getElementById('colQtdCheck').checked,
+                    action: document.getElementById('colActionCheck').checked
                 },
                 columnNames: {
                     id: document.getElementById('colIdName').value,
                     img: document.getElementById('colImgName').value,
                     pt: document.getElementById('colPtName').value,
                     en: document.getElementById('colEnName').value,
-                    qtd: document.getElementById('colQtdName').value
+                    qtd: document.getElementById('colQtdName').value,
+                    action: document.getElementById('colActionName').value
                 }
             };
             localStorage.setItem('terraria_editor_settings', JSON.stringify(settings));
@@ -889,6 +911,7 @@
                 document.getElementById('tableWidthInput').value = settings.tableWidthInput || '1000';
                 document.getElementById('customListTitleInput').value = settings.customListTitle || 'Lista de Itens';
                 document.getElementById('showFavCheck').checked = settings.showFavCheck || false;
+                document.getElementById('invertLangCheck').checked = settings.invertLangCheck || false;
                 document.getElementById('fontSizeInput').value = settings.fontSizeInput || '20';
                 document.getElementById('iconSizeInput').value = settings.iconSizeInput || '1.0';
 
@@ -898,6 +921,7 @@
                     document.getElementById('colPtCheck').checked = settings.columns.pt !== false;
                     document.getElementById('colEnCheck').checked = settings.columns.en !== false;
                     document.getElementById('colQtdCheck').checked = settings.columns.qtd !== false;
+                    document.getElementById('colActionCheck').checked = settings.columns.action !== false;
                 }
 
                 if (settings.columnNames) {
@@ -906,6 +930,7 @@
                     document.getElementById('colPtName').value = settings.columnNames.pt || 'Nome em Português';
                     document.getElementById('colEnName').value = settings.columnNames.en || 'English Name';
                     document.getElementById('colQtdName').value = settings.columnNames.qtd || 'Qtd';
+                    document.getElementById('colActionName').value = settings.columnNames.action || 'Ação';
                 }
 
                 applyWidthConfiguration();
@@ -942,12 +967,14 @@
             const ptLabel = document.getElementById('colPtName').value;
             const enLabel = document.getElementById('colEnName').value;
             const qtdLabel = document.getElementById('colQtdName').value;
+            const actionLabel = document.getElementById('colActionName').value;
+            const invertLang = document.getElementById('invertLangCheck').checked;
 
-            document.querySelectorAll('th.th-label-id').forEach(el => el.innerText = idLabel);
-            document.querySelectorAll('th.th-label-img').forEach(el => el.innerText = imgLabel);
-            document.querySelectorAll('th.th-label-pt').forEach(el => el.innerText = ptLabel);
-            document.querySelectorAll('th.th-label-en').forEach(el => el.innerText = enLabel);
-            document.querySelectorAll('th.th-label-qtd').forEach(el => el.innerText = qtdLabel);
+            document.querySelectorAll('.th-label-id').forEach(el => el.innerText = idLabel);
+            document.querySelectorAll('.th-label-img').forEach(el => el.innerText = imgLabel);
+            document.querySelectorAll('.th-label-name').forEach(el => el.innerText = invertLang ? enLabel : ptLabel);
+            document.querySelectorAll('.th-label-qtd').forEach(el => el.innerText = qtdLabel);
+            document.querySelectorAll('.th-label-action').forEach(el => el.innerText = actionLabel);
             saveSettingsToStorage();
         }
 
@@ -973,7 +1000,6 @@
             updateUndoButtonUI();
         }
 
-        // --- SISTEMA DE AUTOCOMPLETE E ADIÇÃO DE LINHA ---
         const addRowInput = document.getElementById('addRowInput');
         const dropdown = document.getElementById('autocompleteDropdown');
 
@@ -990,7 +1016,6 @@
             dropdown.style.display = 'none';
             buildSegmentedTables();
 
-            // Rola para a última tabela
             setTimeout(() => {
                 const wrappers = document.querySelectorAll('.table-wrapper');
                 if (wrappers.length > 0) {
@@ -1067,14 +1092,12 @@
             }
         });
 
-        // --- EXPORTAR INVENTÁRIO (JSON) ---
         function exportToJson() {
             if (loadedItemsRaw.length === 0) {
                 alert("O inventário está vazio!");
                 return;
             }
 
-            // Constrói objeto no padrão Terraria Inventory
             const exportData = {
                 items: loadedItemsRaw.map(item => ({
                     id: parseInt(item.id),
@@ -1086,13 +1109,12 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 4));
             const downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "meu_inventario.json");
+            downloadAnchorNode.setAttribute("download", "terraria_inventory.json");
             document.body.appendChild(downloadAnchorNode);
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
         }
 
-        // --- SISTEMA DE REORDENAÇÃO (SUBIR/DESCER) ---
         function moveItemUp(globalIndex) {
             if (globalIndex <= 0) return;
             saveHistoryState();
@@ -1111,15 +1133,18 @@
             buildSegmentedTables();
         }
 
-        // --- LEITURA DE ARQUIVO JSON ---
         document.getElementById('invFile').addEventListener('change', function (e) {
             const file = e.target.files[0];
             if (!file) return;
+
+            if (file.name)
+                fileName = file.name.replace('.json', '');
 
             const reader = new FileReader();
             reader.onload = function (evt) {
                 try {
                     const data = JSON.parse(evt.target.result);
+
                     if (data.items && Array.isArray(data.items)) {
                         document.getElementById('invBox').classList.add('loaded');
                         document.getElementById('invTitle').innerText = "✓ Inventário Lido";
@@ -1146,10 +1171,9 @@
                 }
             };
             reader.readAsText(file);
-            this.value = ''; // Reseta o input de arquivo
+            this.value = '';
         });
 
-        // --- CONSTRUÇÃO DA TABELA ---
         function buildSegmentedTables() {
             const container = document.getElementById('tablesArea');
             if (!container) return;
@@ -1158,12 +1182,14 @@
             const searchFilter = document.getElementById('searchBox').value.toLowerCase();
             const itemsPerBlock = parseInt(document.getElementById('itemsPerBlock').value) || 10;
             const highlightFavorites = document.getElementById('showFavCheck').checked;
+            const invertLang = document.getElementById('invertLangCheck').checked;
 
             const idLabel = document.getElementById('colIdName').value;
             const imgLabel = document.getElementById('colImgName').value;
             const ptLabel = document.getElementById('colPtName').value;
             const enLabel = document.getElementById('colEnName').value;
             const qtdLabel = document.getElementById('colQtdName').value;
+            const actionLabel = document.getElementById('colActionName').value;
             const customTitleBase = document.getElementById('customListTitleInput').value || 'Lista de Itens';
 
             const filteredItems = loadedItemsRaw.filter(item => {
@@ -1207,10 +1233,11 @@
                     <tr>
                         <th class="col-id th-label-id text-right" style="width: 10%">${idLabel}</th>
                         <th class="col-img th-label-img" style="width: 10%; text-align: center;">${imgLabel}</th>
-                        <th class="col-pt th-label-pt" style="width: 30%">${ptLabel}</th>
-                        <th class="col-en th-label-en" style="width: 25%">${enLabel}</th>
+                        <th class="col-name th-label-name" style="width: 55%">
+                            ${invertLang ? enLabel : ptLabel}
+                        </th>
                         <th class="col-qtd th-label-qtd text-right" style="width: 10%">${qtdLabel}</th>
-                        <th class="col-action text-center" style="width: 15%">Ação</th>
+                        <th class="col-action th-label-action text-center" style="width: 15%">${actionLabel}</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -1226,9 +1253,15 @@
                     const row = document.createElement('tr');
                     if (item.isFavorited) row.className = 'favorited';
                     const isFav = item.isFavorited ? 'active' : '';
-                    // Desabilitar botões Up/Down nos limites
                     const isFirst = globalIndex === 0;
                     const isLast = globalIndex === loadedItemsRaw.length - 1;
+
+                    const ptClass = invertLang ? 'secondary-text' : 'primary-text';
+                    const enClass = invertLang ? 'primary-text' : 'secondary-text';
+                    const starHtml = `<span class="star">★</span>`;
+
+                    const ptHtml = `<div class="name-pt ${ptClass}" contenteditable="true" data-field="name_ptbr" data-index="${globalIndex}">${!invertLang ? starHtml : ''}${item.name_ptbr}</div>`;
+                    const enHtml = `<div class="name-en ${enClass}" contenteditable="true" data-field="name_eng" data-index="${globalIndex}">${invertLang ? starHtml : ''}${item.name_eng}</div>`;
 
                     row.innerHTML = `
                     <td class="col-id text-right" contenteditable="true" data-field="id" data-index="${globalIndex}"><span class="id-badge">${item.id}</span></td>
@@ -1238,10 +1271,11 @@
                             <img class="item-sprite" src="${imageUrl}" alt="${item.name_eng}" onerror="this.parentElement.style.display='none';">
                         </div>` : ''}
                     </td>
-                    <td class="col-pt" contenteditable="true" data-field="name_ptbr" data-index="${globalIndex}">
-                        <span class="star">★</span><strong>${item.name_ptbr}</strong>
+                    <td class="col-name">
+                        <div class="col-name-container">
+                            ${invertLang ? enHtml + ptHtml : ptHtml + enHtml}
+                        </div>
                     </td>
-                    <td class="col-en" contenteditable="true" data-field="name_eng" data-index="${globalIndex}"><span style="opacity: 0.7; font-style: italic;">${item.name_eng}</span></td>
                     <td class="col-qtd text-right" contenteditable="true" data-field="count" data-index="${globalIndex}">${formattedCount}</td>
                     <td class="col-action text-center">
                         <div class="col-action-container text-center">
@@ -1275,11 +1309,14 @@
 
             const checkboxes = document.querySelectorAll('.column-toggles input[type="checkbox"]');
             checkboxes.forEach(cb => {
-                const className = `hide-col-${cb.getAttribute('data-col')}`;
-                if (!cb.checked) {
-                    target.classList.add(className);
-                } else {
-                    target.classList.remove(className);
+                const colAttr = cb.getAttribute('data-col');
+                if (colAttr) {
+                    const className = `hide-col-${colAttr}`;
+                    if (!cb.checked) {
+                        target.classList.add(className);
+                    } else {
+                        target.classList.remove(className);
+                    }
                 }
             });
             saveSettingsToStorage();
@@ -1301,13 +1338,14 @@
         });
 
         function attachEditEvents() {
-            const editableCells = document.querySelectorAll('td[contenteditable="true"]');
+            const editableCells = document.querySelectorAll('[contenteditable="true"]');
 
             editableCells.forEach(cell => {
                 cell.addEventListener('blur', function () {
                     const index = parseInt(this.getAttribute('data-index'));
                     const field = this.getAttribute('data-field');
-                    let newValue = this.innerText.replace(/[\n\r]/g, "").trim();
+
+                    let newValue = this.innerText.replace(/[\n\r]/g, "").replace('★', '').trim();
 
                     if (field === 'id' || field === 'count') {
                         newValue = parseInt(newValue.replace(/\./g, '')) || loadedItemsRaw[index][field];
@@ -1352,6 +1390,7 @@
 
         document.getElementById('customListTitleInput').addEventListener('input', updateCustomListTitles);
 
+        document.getElementById('invertLangCheck').addEventListener('change', () => { buildSegmentedTables(); updateTableHeaderLabels(); });
         document.getElementById('itemsPerBlock').addEventListener('input', () => { buildSegmentedTables(); saveSettingsToStorage(); });
         document.getElementById('showFavCheck').addEventListener('change', () => { buildSegmentedTables(); saveSettingsToStorage(); });
         document.getElementById('searchBox').addEventListener('input', () => { buildSegmentedTables(); saveSettingsToStorage(); });
@@ -1370,34 +1409,23 @@
             saveSettingsToStorage();
         });
 
-
-
         function removeItemFromInventory(globalIndex) {
             saveHistoryState();
-
-            // Remove o item do array principal
             loadedItemsRaw.splice(globalIndex, 1);
-
-            // Reconstrói a tabela
             buildSegmentedTables();
 
-            // Atualiza o contador de itens manualmente para garantir sincronia visual
             const totalItemsCount = loadedItemsRaw.length;
-            // Busca quantos itens restaram na visualização atual
             const filteredItemsCount = document.querySelectorAll('#tablesArea tbody tr').length;
             document.getElementById('itemCounterDisplay').innerText = `Exibindo ${filteredItemsCount} de ${totalItemsCount} itens`;
         }
+
         function toggleFavorite(globalIndex) {
-            saveHistoryState(); // Garante que você possa desfazer a mudança
-
-            // Inverte o estado atual
+            saveHistoryState();
             loadedItemsRaw[globalIndex].isFavorited = !loadedItemsRaw[globalIndex].isFavorited;
-
-            // Reconstrói a tabela para refletir a mudança visual
             buildSegmentedTables();
         }
-        // --- SISTEMA DE CAPTURA HTML2CANVAS ---
-        function downloadTablesImage() {
+
+        async function downloadTablesImage() {
             if (loadedItemsRaw.length === 0) {
                 alert("O inventário está vazio!");
                 return;
@@ -1405,54 +1433,58 @@
 
             const btn = document.getElementById('printBtnButton');
             const oldText = btn.innerText;
-            btn.innerText = "Salvando...";
             btn.disabled = true;
 
             const targetArea = document.getElementById('tablesArea');
-            targetArea.classList.add('hide-actions');
-
             const wrappers = targetArea.querySelectorAll('.table-wrapper');
-            wrappers.forEach(w => w.classList.add('is-printing')); // Força a remoção de sombra para a captura limpa
+            const total = wrappers.length;
 
-            setTimeout(() => {
+            try {
+                for (let i = 0; i < total; i++) {
+                    btn.innerText = `Salvando (${i + 1}/${total})...`;
 
-                html2canvas(targetArea, {
-                    useCORS: true,
-                    allowTaint: false,
-                    logging: false,
-                    backgroundColor: '#0f1423',
-                    scale: 2,
+                    // Oculta todas as tabelas, mostra apenas a tabela atual do loop
+                    wrappers.forEach((w, index) => {
+                        w.style.display = index === i ? 'block' : 'none';
+                    });
 
-                    onclone: function (clonedDoc) {
-                        const clonedArea = clonedDoc.getElementById('tablesArea');
-                        clonedArea.style.background = "#0f1423 url('https://www.transparenttextures.com/patterns/black-thread.png')";
-                        clonedArea.style.padding = '30px';
-                        clonedArea.style.boxSizing = 'border-box';
+                    // Pequeno intervalo para o navegador aplicar a visibilidade (reflow seguro)
+                    await new Promise(resolve => setTimeout(resolve, 100));
 
+                    const currentWidth = targetArea.offsetWidth;
+                    const currentHeight = targetArea.offsetHeight;
 
-                        const clonedWrappers = clonedArea.querySelectorAll('.table-wrapper');
-                        if (clonedWrappers.length > 0) {
-                            clonedWrappers[clonedWrappers.length - 1].style.marginBottom = '0';
+                    const dataUrl = await htmlToImage.toPng(targetArea, {
+                        pixelRatio: 2,
+                        width: currentWidth + 64,
+                        height: currentHeight + 32,
+                        style: {
+                            margin: '0',
+                            maxWidth: 'none',
+                            padding: '32px',
+                            //background: "#0f1423 url('https://www.transparenttextures.com/patterns/black-thread.png')",
+                            //borderRadius: '15px',
+                            boxSizing: 'border-box'
                         }
-                    }
-                }).then(canvas => {
+                    });
+
                     const link = document.createElement('a');
-                    link.download = 'meu_inventario_terraria.png';
-                    link.href = canvas.toDataURL('image/png');
+                    link.download = `${fileName}_${i + 1}.png`;
+                    link.href = dataUrl;
                     link.click();
 
-                    targetArea.classList.remove('hide-actions');
-                    wrappers.forEach(w => w.classList.remove('is-printing'));
-                    btn.innerText = oldText;
-                    btn.disabled = false;
-                }).catch(err => {
-                    targetArea.classList.remove('hide-actions');
-                    wrappers.forEach(w => w.classList.remove('is-printing'));
-                    alert("Erro ao exportar o PNG.");
-                    btn.innerText = oldText;
-                    btn.disabled = false;
-                });
-            }, 100);
+                    // Fôlego para o navegador engatilhar o download antes de iniciar a captura da próxima imagem
+                    await new Promise(resolve => setTimeout(resolve, 400));
+                }
+            } catch (error) {
+                console.error('Erro ao exportar a imagem:', error);
+                alert("Erro ao exportar o PNG.");
+            } finally {
+                // Restaura a exibição normal de todas as tabelas e o estado do botão
+                wrappers.forEach(w => w.style.display = '');
+                btn.innerText = oldText;
+                btn.disabled = false;
+            }
         }
     </script>
 
