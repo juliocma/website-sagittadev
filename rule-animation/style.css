@@ -15,46 +15,67 @@ body {
     box-sizing: border-box;
 }
 
-.controls {
+/* Nova estrutura da barra lateral para ancorar os botões */
+.sidebar {
     background: #222;
-    padding: 25px;
     border-radius: 12px;
     min-width: 400px;
     max-width: 400px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
     height: 100%;
-    overflow-y: auto;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     box-sizing: border-box;
+    overflow: hidden;
+    /* Mantém os painéis internos contidos */
 }
 
-.controls::-webkit-scrollbar {
-    width: 8px;
-}
-
-.controls::-webkit-scrollbar-track {
-    background: #1a1a1a;
-    border-radius: 4px;
-}
-
-.controls::-webkit-scrollbar-thumb {
-    background: #444;
-    border-radius: 4px;
-}
-
-.controls::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-h3 {
-    margin-top: 0;
+.sidebar h3 {
+    margin: 25px 25px 10px 25px;
     color: #4CAF50;
     border-bottom: 2px solid #333;
     padding-bottom: 8px;
     font-size: 18px;
-    margin-bottom: 5px;
+    flex-shrink: 0;
+}
+
+/* Área de Rolagem que vai preencher o espaço do meio */
+.controls-scroll {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0 25px 15px 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.controls-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.controls-scroll::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 4px;
+}
+
+.controls-scroll::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 4px;
+}
+
+.controls-scroll::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Painel Fixo na Parte Inferior */
+.actions-panel {
+    background: #1a1a1a;
+    padding: 20px 25px;
+    border-top: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
 }
 
 .control-group {
@@ -139,7 +160,7 @@ button {
     font-weight: bold;
     font-size: 14px;
     transition: background 0.2s;
-    margin-top: 5px;
+    margin-top: 0;
 }
 
 button:hover {
@@ -148,7 +169,7 @@ button:hover {
 
 .btn-export {
     background: #e91e63;
-    margin-bottom: 10px;
+    margin-bottom: 0px;
 }
 
 .btn-export:hover {

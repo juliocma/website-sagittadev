@@ -29,7 +29,6 @@ function getPhaseProgress(progress, start, end) {
     return (progress - start) / (end - start);
 }
 
-// Função de polígono contínuo para formas arredondadas macias
 function drawRoundedPolygon(points, r) {
     if (points.length < 3) return;
     ctx.beginPath();
@@ -154,7 +153,6 @@ function drawFrame(progress) {
             const offsetSetas = mostrarSetas ? tailLen : 0;
             let safeRadius = Math.min(radius, halfLine * 1.5);
 
-            // Matemática estática baseada no tamanho final (Para garantir simetria)
             const finalDistance = blocks * 16;
             const finalLeftX = origin === 'centro' ? -finalDistance / 2 : (origin === 'esquerda' ? 0 : -finalDistance);
             const finalRightX = origin === 'centro' ? finalDistance / 2 : (origin === 'esquerda' ? finalDistance : 0);
@@ -182,7 +180,6 @@ function drawFrame(progress) {
             ctx.lineWidth = bWidth;
 
             if (mostrarSetas) {
-                // COM SETAS: Usa a máscara de recorte para fundir o pontilhado na base da seta
                 const currentTailLen = Math.min(tailLen, Math.abs(rightX - leftX) / 2);
                 safeRadius = Math.min(safeRadius, scaledSize / 3, currentTailLen > 0 ? currentTailLen : 999);
 
@@ -215,7 +212,6 @@ function drawFrame(progress) {
                 }
                 ctx.restore();
 
-                // Desenha a seta por cima
                 ctx.lineJoin = safeRadius > 0 ? 'round' : 'bevel';
 
                 const leftPts = [
@@ -245,9 +241,6 @@ function drawFrame(progress) {
                 ctx.fill();
 
             } else {
-                // SEM SETAS: GERAÇÃO NATURAL
-                // Em vez de usar máscara, desenhamos o traço calculando a largura real dele com base no progresso.
-                // A borda preta circula a forma perfeita desde os primeiros pixels dela!
                 for (let i = 0; i < N; i++) {
                     let dLeft = L + actualGap + i * (actualDashLen + actualGap);
                     let dRight = dLeft + actualDashLen;
@@ -257,7 +250,6 @@ function drawFrame(progress) {
 
                     if (drawRight > drawLeft) {
                         let currentDashWidth = drawRight - drawLeft;
-                        // Impede que o arredondamento estrague a forma caso ela esteja nascendo (muito pequena)
                         let dynRadius = Math.min(safeRadius, currentDashWidth / 2, halfLine);
 
                         ctx.lineJoin = dynRadius > 0 ? 'round' : 'miter';
@@ -275,7 +267,6 @@ function drawFrame(progress) {
             }
 
         } else {
-            // Linha Sólida - Polígono Unificado Externo
             let safeRadius = Math.min(radius, scaledSize / 3);
             let pts = [];
 
@@ -313,7 +304,6 @@ function drawFrame(progress) {
         }
     }
 
-    // FASE DE TEXTO
     if (phase3 > 0 && mostrarTexto) {
         ctx.save();
 
