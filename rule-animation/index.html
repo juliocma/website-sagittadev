@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Medidas Terraria - Modular</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="controls">
+        <h3>Gerador de Medidas</h3>
+
+        <div class="control-group">
+            <div class="control-row">
+                <div style="flex:1">
+                    <label for="tamanho">Qtd (Blocos):</label>
+                    <input type="number" id="tamanho" value="15" min="1" step="1">
+                </div>
+                <div style="flex:2">
+                    <label for="textoPersonalizado">Texto Complementar:</label>
+                    <input type="text" id="textoPersonalizado" value=" Blocos">
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Visibilidade e Animação Inicial</label>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:5px;">
+                <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="mostrarTexto" checked style="width: 16px;"> Mostrar Texto
+                </label>
+                <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="mostrarSetas" checked style="width: 16px;"> Mostrar Setas nas Pontas
+                </label>
+                <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="animacaoInicial" checked style="width: 16px;"> Animação de Surgimento
+                    (Losango)
+                </label>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Configurações de Texto</label>
+            <div class="control-row" style="margin-bottom: 5px;">
+                <select id="animTexto" style="flex:1; margin-right: 5px;">
+                    <option value="nenhuma">Sem Animação (Fixo)</option>
+                    <option value="surgir">Surgir Suavemente (Fade)</option>
+                    <option value="expandir_zoom">Expandir (Zoom in)</option>
+                    <option value="expandir_corte">Revelar (Clipping Mask)</option>
+                </select>
+                <select id="textPos" style="flex:1;">
+                    <option value="centro">Fixo no Centro</option>
+                    <option value="ponta">Acompanhar Seta</option>
+                </select>
+            </div>
+            <div class="control-row">
+                <select id="textAcimaAbaixo" style="flex:1; margin-right: 5px;">
+                    <option value="acima">Texto Acima da Linha</option>
+                    <option value="abaixo">Texto Abaixo da Linha</option>
+                </select>
+                <label style="flex:1; display:flex; align-items:center; gap: 5px; cursor: pointer;">
+                    <input type="checkbox" id="inverterTexto" style="width: 16px;">
+                    Inverter 180°
+                </label>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Cores</label>
+            <div class="colors-container">
+                <div class="color-item">
+                    <span>Interna</span>
+                    <input type="color" id="corFill" value="#ffeb3b">
+                </div>
+                <div class="color-item">
+                    <span>Borda</span>
+                    <input type="color" id="corBorder" value="#000000">
+                </div>
+                <div class="color-item">
+                    <span>Texto</span>
+                    <input type="color" id="corTexto" value="#ffffff">
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Estilo do Traço e Setas</label>
+            <div class="control-row" style="margin-bottom: 5px;">
+                <select id="tipoLinha" style="flex:1; margin-right: 5px;">
+                    <option value="solida">Linha Sólida</option>
+                    <option value="pontilhada">Linha Pontilhada</option>
+                </select>
+            </div>
+
+            <div id="controlesPontilhado" style="display: none; flex-direction: column; gap: 5px;">
+                <div class="control-row">
+                    <label for="tamanhoTraco">Tam. Traço:</label>
+                    <span class="value-display" id="tamanhoTracoVal">20px</span>
+                    <input type="range" id="tamanhoTraco" min="5" max="50" value="20" style="width: 50%;">
+                </div>
+                <div class="control-row">
+                    <label for="espacoTraco">Espaçamento:</label>
+                    <span class="value-display" id="espacoTracoVal">10px</span>
+                    <input type="range" id="espacoTraco" min="2" max="50" value="10" style="width: 50%;">
+                </div>
+            </div>
+
+            <div class="control-row" style="margin-top: 5px;">
+                <label for="arredondamento">Arredondamento das Pontas:</label>
+                <span class="value-display" id="arredondamentoVal">8px</span>
+            </div>
+            <input type="range" id="arredondamento" min="0" max="20" value="8">
+        </div>
+
+        <div class="control-group">
+            <div class="control-row">
+                <label for="tamanhoSeta">Tamanho da Seta:</label>
+                <span class="value-display" id="tamanhoSetaVal">24px</span>
+            </div>
+            <input type="range" id="tamanhoSeta" min="10" max="80" value="24">
+        </div>
+
+        <div class="control-group">
+            <div class="control-row">
+                <label for="espessuraLinha">Largura da Linha:</label>
+                <span class="value-display" id="espessuraLinhaVal">8px</span>
+            </div>
+            <input type="range" id="espessuraLinha" min="2" max="40" value="8">
+        </div>
+
+        <div class="control-group">
+            <div class="control-row">
+                <label for="borderWidth">Espessura da Borda:</label>
+                <span class="value-display" id="borderWidthVal">4px</span>
+            </div>
+            <input type="range" id="borderWidth" min="0" max="15" value="4">
+        </div>
+
+        <div class="control-group">
+            <div class="control-row">
+                <label for="velocidade">Duração (ms):</label>
+                <span class="value-display" id="velocidadeVal">2000ms</span>
+            </div>
+            <input type="range" id="velocidade" min="500" max="5000" step="100" value="2000">
+        </div>
+
+        <div class="control-group">
+            <label for="origem">Origem e Suavização:</label>
+            <div class="control-row">
+                <select id="origem" style="flex:1; margin-right: 5px;">
+                    <option value="centro">Centro</option>
+                    <option value="esquerda">Ir p/ Direita</option>
+                    <option value="direita">Ir p/ Esquerda</option>
+                </select>
+                <select id="easing" style="flex:1;">
+                    <option value="easeOut">Ease Out</option>
+                    <option value="easeInOut">Ease In Out</option>
+                    <option value="linear">Linear</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <div class="control-row">
+                <label for="angulo">Ângulo da Animação:</label>
+                <span class="value-display" id="anguloVal">0°</span>
+            </div>
+            <input type="range" id="angulo" min="0" max="360" value="0">
+        </div>
+
+        <div class="control-group">
+            <div class="control-row">
+                <label for="zoom">Zoom Visual (Preview):</label>
+                <span class="value-display" id="zoomVal">1.0x</span>
+            </div>
+            <input type="range" id="zoom" min="0.5" max="3.0" step="0.1" value="1.0">
+        </div>
+
+        <button onclick="playAnimation()">Play Animação</button>
+        <button class="btn-export" onclick="exportVideo()">Exportar WebM</button>
+        <div id="status"></div>
+    </div>
+
+    <div class="preview-container">
+        <canvas id="canvas" width="1920" height="1080"></canvas>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
