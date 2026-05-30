@@ -12,6 +12,8 @@ const inputIds = [
     'mostrarTexto', 'mostrarSetas', 'animacaoInicial'
 ];
 
+const exportButton = document.getElementsByClassName("btn-export")[0]
+
 document.getElementById('tipoLinha').addEventListener('change', function () {
     const painel = document.getElementById('controlesPontilhado');
     if (painel) painel.style.display = this.value === 'pontilhada' ? 'flex' : 'none';
@@ -29,6 +31,7 @@ function getPhaseProgress(progress, start, end) {
     return (progress - start) / (end - start);
 }
 
+// Função de polígono contínuo para formas arredondadas macias
 function drawRoundedPolygon(points, r) {
     if (points.length < 3) return;
     ctx.beginPath();
@@ -83,7 +86,9 @@ function drawFrame(progress) {
     const animacaoInicial = document.getElementById('animacaoInicial') ? document.getElementById('animacaoInicial').checked : true;
 
     let animProgress = progress;
-    if (!animacaoInicial) animProgress = 0.35 + (progress * 0.65);
+    if (!animacaoInicial) {
+        animProgress = 0.35 + (progress * 0.65);
+    }
 
     let phase1 = getPhaseProgress(animProgress, 0.0, 0.15);
     let phase2 = getPhaseProgress(animProgress, 0.15, 0.35);
@@ -360,7 +365,10 @@ function drawFrame(progress) {
         if (bWidth > 0) {
             ctx.lineJoin = 'round';
             ctx.miterLimit = 2;
-            ctx.lineWidth = bWidth * 1.5;
+
+            // CORREÇÃO AQUI: A espessura da borda do texto agora é idêntica à das formas geométricas.
+            ctx.lineWidth = bWidth;
+
             ctx.strokeStyle = stroke;
             ctx.strokeText(textCompleto, 0, 0);
         }
@@ -467,6 +475,7 @@ let mediaRecorder;
 let recordedChunks = [];
 
 function exportVideo() {
+
     const stream = canvas.captureStream(60);
     const options = { mimeType: 'video/webm; codecs=vp9' };
 
@@ -482,7 +491,8 @@ function exportVideo() {
     mediaRecorder.onstop = handleStop;
 
     isRecording = true;
-    document.getElementById('status').innerText = "Gravando Overlay Transparente...";
+    exportButton.disabled = true;
+    exportButton.innerText = "Gerando o WebM...";
     mediaRecorder.start();
     playAnimation();
 }
@@ -490,8 +500,8 @@ function exportVideo() {
 function stopRecording() {
     mediaRecorder.stop();
     isRecording = false;
-    document.getElementById('status').innerText = "Exportação concluída!";
-    setTimeout(() => { document.getElementById('status').innerText = ""; }, 3000);
+    exportButton.innerText = "Exportar WebM";
+    exportButton.disabled = false;
 }
 
 function handleStop() {
