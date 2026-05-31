@@ -4,19 +4,88 @@ let animationFrame = null;
 let startTime;
 let isRecording = false;
 
+let exportOriginalWidth = 1920;
+let exportOriginalHeight = 1080;
+
 const inputIds = [
     'tamanho', 'textoPersonalizado', 'corFill', 'corBorder', 'corTexto',
     'tamanhoSeta', 'espessuraLinha', 'borderWidth', 'velocidade',
     'easing', 'origem', 'angulo', 'textPos', 'zoom', 'animTexto', 'tipoLinha',
     'arredondamento', 'tamanhoTraco', 'espacoTraco', 'textAcimaAbaixo', 'inverterTexto',
-    'mostrarTexto', 'mostrarSetas', 'animacaoInicial'
+    'mostrarTexto', 'mostrarSetas', 'animacaoInicial', 'tamanhoFonte', 'tipoFundo', 'usarFundo',
+    'distanciaTexto', 'rotacaoTexto', 'canvasWidth', 'canvasHeight', 'tipoExportacao', 'qualidadeExportacao'
 ];
 
 const exportButton = document.getElementsByClassName("btn-export")[0]
 
+function updateCanvasSize() {
+    if (isRecording) return;
+    const w = parseInt(document.getElementById('canvasWidth').value) || 1920;
+    const h = parseInt(document.getElementById('canvasHeight').value) || 1080;
+    canvas.width = w;
+    canvas.height = h;
+    exportOriginalWidth = w;
+    exportOriginalHeight = h;
+    if (animationFrame === null) drawFrame(1);
+}
+
+document.getElementById('canvasWidth').addEventListener('input', () => { saveConfig(); updateCanvasSize(); });
+document.getElementById('canvasHeight').addEventListener('input', () => { saveConfig(); updateCanvasSize(); });
+
+function syncInputs(rangeId, numberId) {
+    const range = document.getElementById(rangeId);
+    const num = document.getElementById(numberId);
+    if (range && num) {
+        range.addEventListener('input', () => {
+            num.value = range.value;
+            if (!isRecording && animationFrame === null) drawFrame(1);
+            saveConfig();
+        });
+        num.addEventListener('input', () => {
+            range.value = num.value;
+            if (!isRecording && animationFrame === null) drawFrame(1);
+            saveConfig();
+        });
+    }
+}
+
+function syncColors(colorId, hexId) {
+    const col = document.getElementById(colorId);
+    const hex = document.getElementById(hexId);
+    if (col && hex) {
+        col.addEventListener('input', () => {
+            hex.value = col.value.toUpperCase();
+            if (!isRecording && animationFrame === null) drawFrame(1);
+            saveConfig();
+        });
+        hex.addEventListener('input', () => {
+            if (/^#[0-9A-F]{6}$/i.test(hex.value)) {
+                col.value = hex.value;
+                if (!isRecording && animationFrame === null) drawFrame(1);
+                saveConfig();
+            }
+        });
+    }
+}
+
+['tamanhoFonte', 'rotacaoTexto', 'tamanhoTraco', 'espacoTraco', 'arredondamento',
+    'tamanhoSeta', 'espessuraLinha', 'borderWidth', 'velocidade', 'angulo', 'zoom', 'distanciaTexto']
+    .forEach(id => syncInputs(id, id + 'Num'));
+
+['corFill', 'corBorder', 'corTexto', 'corFundo'].forEach(id => syncColors(id, id + 'Hex'));
+
 document.getElementById('tipoLinha').addEventListener('change', function () {
     const painel = document.getElementById('controlesPontilhado');
     if (painel) painel.style.display = this.value === 'pontilhada' ? 'flex' : 'none';
+    if (!isRecording && animationFrame === null) drawFrame(1);
+    saveConfig();
+});
+
+document.querySelectorAll('.controls-scroll input[type="checkbox"], .controls-scroll select, #tamanho, #textoPersonalizado, #tipoExportacao, #qualidadeExportacao').forEach(el => {
+    el.addEventListener('input', () => {
+        if (!isRecording && animationFrame === null) drawFrame(1);
+        saveConfig();
+    });
 });
 
 const easings = {
@@ -31,7 +100,6 @@ function getPhaseProgress(progress, start, end) {
     return (progress - start) / (end - start);
 }
 
-// Função de polígono contínuo para formas arredondadas macias
 function drawRoundedPolygon(points, r) {
     if (points.length < 3) return;
     ctx.beginPath();
@@ -53,11 +121,17 @@ function drawRoundedPolygon(points, r) {
 }
 
 function drawFrame(progress) {
+    const usarFundo = document.getElementById('usarFundo').checked;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (usarFundo) {
+        ctx.fillStyle = document.getElementById('corFundo').value;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
     const blocks = Math.floor(parseFloat(document.getElementById('tamanho').value)) || 1;
     const distance = blocks * 16;
-    const textCompleto = blocks + (document.getElementById('textoPersonalizado') ? document.getElementById('textoPersonalizado').value : " Blocos");
+    const textCompleto = blocks + (document.getElementById('textoPersonalizado') ? document.getElementById('textoPersonalizado').value : "");
 
     const fill = document.getElementById('corFill').value;
     const stroke = document.getElementById('corBorder').value;
@@ -79,11 +153,14 @@ function drawFrame(progress) {
     const dashLen = parseFloat(document.getElementById('tamanhoTraco').value);
     const dashGap = parseFloat(document.getElementById('espacoTraco').value);
 
-    const textAcimaAbaixo = document.getElementById('textAcimaAbaixo') ? document.getElementById('textAcimaAbaixo').value : 'acima';
-    const inverterTexto = document.getElementById('inverterTexto') ? document.getElementById('inverterTexto').checked : false;
-    const mostrarTexto = document.getElementById('mostrarTexto') ? document.getElementById('mostrarTexto').checked : true;
-    const mostrarSetas = document.getElementById('mostrarSetas') ? document.getElementById('mostrarSetas').checked : true;
-    const animacaoInicial = document.getElementById('animacaoInicial') ? document.getElementById('animacaoInicial').checked : true;
+    const textoAbaixo = document.getElementById('textoAbaixo').checked;
+    const rotacaoTexto = parseFloat(document.getElementById('rotacaoTexto').value) || 0;
+    const distanciaTexto = parseFloat(document.getElementById('distanciaTexto').value) || 0;
+
+    const mostrarTexto = document.getElementById('mostrarTexto').checked;
+    const mostrarSetas = document.getElementById('mostrarSetas').checked;
+    const animacaoInicial = document.getElementById('animacaoInicial').checked;
+    const tamanhoFonte = parseFloat(document.getElementById('tamanhoFonte').value);
 
     let animProgress = progress;
     if (!animacaoInicial) {
@@ -335,17 +412,16 @@ function drawFrame(progress) {
         let finalOffset = 0;
 
         const offsetRef = mostrarSetas ? baseLen : halfLine;
-        const afastamentoBase = offsetRef + bWidth + 15;
+        const afastamentoBase = offsetRef + bWidth + distanciaTexto + (tamanhoFonte / 2.5);
 
-        let dirMult = textAcimaAbaixo === 'acima' ? -1 : 1;
+        let dirMult = textoAbaixo ? 1 : -1;
 
-        if (inverterTexto) {
-            ctx.rotate(Math.PI);
-            dirMult *= -1;
-        } else if (isUpsideDown) {
+        if (isUpsideDown) {
             ctx.rotate(Math.PI);
             dirMult *= -1;
         }
+
+        ctx.rotate(rotacaoTexto * Math.PI / 180);
 
         finalOffset = afastamentoBase * dirMult;
         ctx.translate(0, finalOffset);
@@ -358,17 +434,14 @@ function drawFrame(progress) {
             ctx.scale(scaleText, scaleText);
         }
 
-        ctx.font = "bold 28px 'Andy', Arial, sans-serif";
+        ctx.font = "bold " + tamanhoFonte + "px 'Andy', Arial, sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
         if (bWidth > 0) {
             ctx.lineJoin = 'round';
             ctx.miterLimit = 2;
-
-            // CORREÇÃO AQUI: A espessura da borda do texto agora é idêntica à das formas geométricas.
             ctx.lineWidth = bWidth;
-
             ctx.strokeStyle = stroke;
             ctx.strokeText(textCompleto, 0, 0);
         }
@@ -417,67 +490,87 @@ function saveConfig() {
             }
         }
     });
-    localStorage.setItem('terrariaMedidorConfigFinal', JSON.stringify(config));
+    localStorage.setItem('terrariaMedidorConfigPTBR', JSON.stringify(config));
 }
 
 function loadConfig() {
-    const configStr = localStorage.getItem('terrariaMedidorConfigFinal');
+    const configStr = localStorage.getItem('terrariaMedidorConfigPTBR');
     if (configStr) {
         const config = JSON.parse(configStr);
         for (const key in config) {
             const el = document.getElementById(key);
             if (el) {
-                if (el.type === 'checkbox') {
-                    el.checked = config[key];
-                } else {
-                    el.value = config[key];
-                }
+                if (el.type === 'checkbox') el.checked = config[key];
+                else el.value = config[key];
+
                 if (key === 'tipoLinha') {
                     const panel = document.getElementById('controlesPontilhado');
                     if (panel) panel.style.display = el.value === 'pontilhada' ? 'flex' : 'none';
                 }
-                const display = document.getElementById(key + 'Val');
-                if (display) {
-                    let unit = '';
-                    if (key === 'velocidade') unit = 'ms';
-                    else if (key === 'angulo') unit = '°';
-                    else if (key === 'zoom') unit = 'x';
-                    else unit = 'px';
-                    display.innerText = el.value + unit;
-                }
             }
         }
     }
+    updateCanvasSize();
 }
 
-inputIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-        el.addEventListener('input', (e) => {
-            saveConfig();
-            const display = document.getElementById(id + 'Val');
-            if (display) {
-                let unit = '';
-                if (id === 'velocidade') unit = 'ms';
-                else if (id === 'angulo') unit = '°';
-                else if (id === 'zoom') unit = 'x';
-                else unit = 'px';
-                display.innerText = e.target.value + unit;
-            }
-            if (!isRecording && animationFrame === null) {
-                drawFrame(1);
-            }
-        });
-    }
-});
+// Inicializa Tela
+exportOriginalWidth = parseInt(document.getElementById('canvasWidth').value) || 1920;
+exportOriginalHeight = parseInt(document.getElementById('canvasHeight').value) || 1080;
 
 let mediaRecorder;
 let recordedChunks = [];
 
 function exportVideo() {
+    const tipoExportacao = document.getElementById('tipoExportacao').value;
+    const qualidade = parseInt(document.getElementById('qualidadeExportacao').value) || 50000000;
+
+    if (tipoExportacao === 'objeto') {
+        const blocks = Math.floor(parseFloat(document.getElementById('tamanho').value)) || 1;
+        const distance = blocks * 16;
+        const baseArrowSize = parseFloat(document.getElementById('tamanhoSeta').value);
+        const bWidth = parseFloat(document.getElementById('borderWidth').value);
+        const zoom = parseFloat(document.getElementById('zoom').value);
+        const angle = parseInt(document.getElementById('angulo').value);
+        const tamanhoFonte = parseFloat(document.getElementById('tamanhoFonte').value);
+        const distTexto = parseFloat(document.getElementById('distanciaTexto').value);
+        const mostrarSetas = document.getElementById('mostrarSetas').checked;
+        const mostrarTexto = document.getElementById('mostrarTexto').checked;
+        const halfLine = parseFloat(document.getElementById('espessuraLinha').value) / 2;
+
+        const baseLen = (baseArrowSize * Math.SQRT2) / 2;
+
+        let wObj = distance + (mostrarSetas ? baseLen * 2 : 0) + bWidth * 2;
+        let hObj = (mostrarSetas ? baseLen * 2 : halfLine * 2) + bWidth * 2;
+
+        if (mostrarTexto) {
+            const offsetRef = mostrarSetas ? baseLen : halfLine;
+            const afastamento = offsetRef + bWidth + distTexto + tamanhoFonte;
+            hObj = Math.max(hObj, afastamento * 2);
+        }
+
+        wObj *= zoom;
+        hObj *= zoom;
+
+        const rad = angle * Math.PI / 180;
+        let finalW = Math.abs(wObj * Math.cos(rad)) + Math.abs(hObj * Math.sin(rad));
+        let finalH = Math.abs(wObj * Math.sin(rad)) + Math.abs(hObj * Math.cos(rad));
+
+        finalW += 60;
+        finalH += 60;
+
+        canvas.width = Math.ceil(finalW);
+        canvas.height = Math.ceil(finalH);
+    } else {
+        canvas.width = exportOriginalWidth;
+        canvas.height = exportOriginalHeight;
+    }
 
     const stream = canvas.captureStream(60);
-    const options = { mimeType: 'video/webm; codecs=vp9' };
+    // CONFIGURAÇÃO DO BITRATE APLICADA AQUI
+    const options = {
+        mimeType: 'video/webm; codecs=vp9',
+        videoBitsPerSecond: qualidade
+    };
 
     try {
         mediaRecorder = new MediaRecorder(stream, options);
@@ -514,7 +607,10 @@ function handleStop() {
     a.download = `medida_terraria_${document.getElementById('tamanho').value}_blocos.webm`;
     a.click();
     window.URL.revokeObjectURL(url);
+
+    canvas.width = exportOriginalWidth;
+    canvas.height = exportOriginalHeight;
+    drawFrame(1);
 }
 
 loadConfig();
-drawFrame(1);

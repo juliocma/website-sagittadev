@@ -9,11 +9,25 @@
 </head>
 
 <body>
-
     <div class="sidebar">
         <h3>Gerador de Medidas</h3>
 
         <div class="controls-scroll">
+
+            <div class="control-group">
+                <label>Tamanho da Tela (Canvas)</label>
+                <div class="control-row">
+                    <div style="flex:1; display:flex; flex-direction:column; gap:2px;">
+                        <label style="font-size:10px;">Largura:</label>
+                        <input type="number" id="canvasWidth" value="1920" step="1">
+                    </div>
+                    <div style="flex:1; display:flex; flex-direction:column; gap:2px;">
+                        <label style="font-size:10px;">Altura:</label>
+                        <input type="number" id="canvasHeight" value="1080" step="1">
+                    </div>
+                </div>
+            </div>
+
             <div class="control-group">
                 <div class="control-row">
                     <div style="flex:1">
@@ -57,32 +71,76 @@
                         <option value="ponta">Acompanhar Seta</option>
                     </select>
                 </div>
-                <div class="control-row">
-                    <select id="textAcimaAbaixo" style="flex:1; margin-right: 5px;">
-                        <option value="acima">Texto Acima da Linha</option>
-                        <option value="abaixo">Texto Abaixo da Linha</option>
-                    </select>
+
+                <div class="control-row" style="margin-bottom: 5px;">
                     <label style="flex:1; display:flex; align-items:center; gap: 5px; cursor: pointer;">
-                        <input type="checkbox" id="inverterTexto" style="width: 16px;">
-                        Inverter 180°
+                        <input type="checkbox" id="textoAbaixo" style="width: 16px;">
+                        Texto Abaixo da Linha
                     </label>
+                </div>
+
+                <div class="control-row">
+                    <label>Tamanho da Fonte:</label>
+                </div>
+                <div class="control-row">
+                    <input type="range" id="tamanhoFonte" min="10" max="150" value="28">
+                    <input type="number" id="tamanhoFonteNum" min="10" max="150" value="28" class="num-input">
+                </div>
+
+                <div class="control-row" style="margin-top: 5px;">
+                    <label>Distância do Texto para a Linha:</label>
+                </div>
+                <div class="control-row">
+                    <input type="range" id="distanciaTexto" min="0" max="200" value="15">
+                    <input type="number" id="distanciaTextoNum" min="0" max="200" value="15" class="num-input">
+                </div>
+
+                <div class="control-row" style="margin-top: 5px;">
+                    <label>Rotação do Texto (°):</label>
+                </div>
+                <div class="control-row">
+                    <input type="range" id="rotacaoTexto" min="0" max="360" value="0">
+                    <input type="number" id="rotacaoTextoNum" min="0" max="360" value="0" class="num-input">
                 </div>
             </div>
 
             <div class="control-group">
-                <label>Cores</label>
+                <label>Cores da Medida</label>
                 <div class="colors-container">
                     <div class="color-item">
                         <span>Interna</span>
-                        <input type="color" id="corFill" value="#ffeb3b">
+                        <div class="color-input-wrapper">
+                            <input type="color" id="corFill" value="#ffeb3b">
+                            <input type="text" id="corFillHex" value="#ffeb3b">
+                        </div>
                     </div>
                     <div class="color-item">
                         <span>Borda</span>
-                        <input type="color" id="corBorder" value="#000000">
+                        <div class="color-input-wrapper">
+                            <input type="color" id="corBorder" value="#000000">
+                            <input type="text" id="corBorderHex" value="#000000">
+                        </div>
                     </div>
                     <div class="color-item">
                         <span>Texto</span>
-                        <input type="color" id="corTexto" value="#ffffff">
+                        <div class="color-input-wrapper">
+                            <input type="color" id="corTexto" value="#ffffff">
+                            <input type="text" id="corTextoHex" value="#ffffff">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Fundo do Vídeo (Chroma Key CapCut)</label>
+                <div class="control-row" style="margin-top: 5px;">
+                    <label style="display:flex; align-items:center; gap: 5px; cursor: pointer;">
+                        <input type="checkbox" id="usarFundo" style="width: 16px;">
+                        Usar Fundo Sólido
+                    </label>
+                    <div class="color-input-wrapper" style="width: 120px;">
+                        <input type="color" id="corFundo" value="#00FF00">
+                        <input type="text" id="corFundoHex" value="#00FF00">
                     </div>
                 </div>
             </div>
@@ -90,7 +148,7 @@
             <div class="control-group">
                 <label>Estilo do Traço e Setas</label>
                 <div class="control-row" style="margin-bottom: 5px;">
-                    <select id="tipoLinha" style="flex:1; margin-right: 5px;">
+                    <select id="tipoLinha" style="flex:1;">
                         <option value="solida">Linha Sólida</option>
                         <option value="pontilhada">Linha Pontilhada</option>
                     </select>
@@ -98,58 +156,73 @@
 
                 <div id="controlesPontilhado" style="display: none; flex-direction: column; gap: 5px;">
                     <div class="control-row">
-                        <label for="tamanhoTraco">Tam. Traço:</label>
-                        <span class="value-display" id="tamanhoTracoVal">20px</span>
-                        <input type="range" id="tamanhoTraco" min="5" max="50" value="20" style="width: 50%;">
+                        <label>Tam. Traço:</label>
                     </div>
                     <div class="control-row">
-                        <label for="espacoTraco">Espaçamento:</label>
-                        <span class="value-display" id="espacoTracoVal">10px</span>
-                        <input type="range" id="espacoTraco" min="2" max="50" value="10" style="width: 50%;">
+                        <input type="range" id="tamanhoTraco" min="5" max="50" value="20">
+                        <input type="number" id="tamanhoTracoNum" min="5" max="50" value="20" class="num-input">
+                    </div>
+                    <div class="control-row">
+                        <label>Espaçamento:</label>
+                    </div>
+                    <div class="control-row">
+                        <input type="range" id="espacoTraco" min="2" max="50" value="10">
+                        <input type="number" id="espacoTracoNum" min="2" max="50" value="10" class="num-input">
                     </div>
                 </div>
 
                 <div class="control-row" style="margin-top: 5px;">
-                    <label for="arredondamento">Arredondamento das Pontas:</label>
-                    <span class="value-display" id="arredondamentoVal">8px</span>
+                    <label>Arredondamento das Pontas:</label>
                 </div>
-                <input type="range" id="arredondamento" min="0" max="20" value="8">
+                <div class="control-row">
+                    <input type="range" id="arredondamento" min="0" max="20" value="8">
+                    <input type="number" id="arredondamentoNum" min="0" max="20" value="8" class="num-input">
+                </div>
             </div>
 
             <div class="control-group">
                 <div class="control-row">
-                    <label for="tamanhoSeta">Tamanho da Seta:</label>
-                    <span class="value-display" id="tamanhoSetaVal">24px</span>
+                    <label>Tamanho da Seta:</label>
                 </div>
-                <input type="range" id="tamanhoSeta" min="10" max="80" value="24">
+                <div class="control-row">
+                    <input type="range" id="tamanhoSeta" min="10" max="80" value="24">
+                    <input type="number" id="tamanhoSetaNum" min="10" max="80" value="24" class="num-input">
+                </div>
             </div>
 
             <div class="control-group">
                 <div class="control-row">
-                    <label for="espessuraLinha">Largura da Linha:</label>
-                    <span class="value-display" id="espessuraLinhaVal">8px</span>
+                    <label>Largura da Linha (Corpo):</label>
                 </div>
-                <input type="range" id="espessuraLinha" min="2" max="40" value="8">
+                <div class="control-row">
+                    <input type="range" id="espessuraLinha" min="2" max="40" value="8">
+                    <input type="number" id="espessuraLinhaNum" min="2" max="40" value="8" class="num-input">
+                </div>
             </div>
 
             <div class="control-group">
                 <div class="control-row">
-                    <label for="borderWidth">Espessura da Borda:</label>
-                    <span class="value-display" id="borderWidthVal">4px</span>
+                    <label>Espessura da Borda Preta:</label>
                 </div>
-                <input type="range" id="borderWidth" min="0" max="15" value="4">
+                <div class="control-row">
+                    <input type="range" id="borderWidth" min="0" max="15" value="4">
+                    <input type="number" id="borderWidthNum" min="0" max="15" value="4" class="num-input">
+                </div>
             </div>
 
             <div class="control-group">
                 <div class="control-row">
-                    <label for="velocidade">Duração (ms):</label>
-                    <span class="value-display" id="velocidadeVal">2000ms</span>
+                    <label>Duração da Animação (ms):</label>
                 </div>
-                <input type="range" id="velocidade" min="500" max="5000" step="100" value="2000">
+                <div class="control-row">
+                    <input type="range" id="velocidade" min="500" max="5000" step="100" value="2000">
+                    <input type="number" id="velocidadeNum" min="500" max="5000" step="100" value="2000"
+                        class="num-input">
+                </div>
             </div>
 
             <div class="control-group">
-                <label for="origem">Origem e Suavização:</label>
+                <label>Origem e Suavização:</label>
                 <div class="control-row">
                     <select id="origem" style="flex:1; margin-right: 5px;">
                         <option value="centro">Centro</option>
@@ -166,31 +239,49 @@
 
             <div class="control-group">
                 <div class="control-row">
-                    <label for="angulo">Ângulo da Animação:</label>
-                    <span class="value-display" id="anguloVal">0°</span>
+                    <label>Ângulo da Animação (°):</label>
                 </div>
-                <input type="range" id="angulo" min="0" max="360" value="0">
+                <div class="control-row">
+                    <input type="range" id="angulo" min="0" max="360" value="0">
+                    <input type="number" id="anguloNum" min="0" max="360" value="0" class="num-input">
+                </div>
             </div>
 
             <div class="control-group">
                 <div class="control-row">
-                    <label for="zoom">Zoom Visual (Preview):</label>
-                    <span class="value-display" id="zoomVal">1.0x</span>
+                    <label>Zoom Visual (Na Tela):</label>
                 </div>
-                <input type="range" id="zoom" min="0.5" max="8.0" step="0.1" value="1.0">
+                <div class="control-row">
+                    <input type="range" id="zoom" min="0.5" max="8.0" step="0.1" value="1.0">
+                    <input type="number" id="zoomNum" min="0.5" max="8.0" step="0.1" value="1.0" class="num-input">
+                </div>
             </div>
         </div>
 
         <div class="actions-panel">
-            <button onclick="playAnimation()">Play Animação</button>
-            <button class="btn-export" onclick="exportVideo()">
-                Exportar WebM
-            </button>
+            <div class="control-row" style="margin-bottom: 5px;">
+                <label style="color: #ccc; font-weight: bold; font-size: 11px;">Tamanho:</label>
+                <select id="tipoExportacao" style="flex: 1; margin-left: 5px;">
+                    <option value="canvas">Tela Inteira (Canvas)</option>
+                    <option value="objeto">Apenas o Objeto (Cropped)</option>
+                </select>
+            </div>
 
+            <div class="control-row" style="margin-bottom: 5px;">
+                <label style="color: #ccc; font-weight: bold; font-size: 11px;">Qualidade:</label>
+                <select id="qualidadeExportacao" style="flex: 1; margin-left: 5px;">
+                    <option value="2500000">Normal (2.5 Mbps)</option>
+                    <option value="8000000">Alta (8 Mbps)</option>
+                    <option value="50000000" selected>Máxima (Sem Perdas)</option>
+                </select>
+            </div>
+
+            <button onclick="playAnimation()">Play Animação</button>
+            <button class="btn-export" onclick="exportVideo()">Exportar WebM</button>
         </div>
     </div>
 
-    <div class="preview-container">
+    <div class="preview-container" id="previewContainer">
         <canvas id="canvas" width="1920" height="1080"></canvas>
     </div>
 
