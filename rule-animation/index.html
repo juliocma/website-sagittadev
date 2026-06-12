@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de Medidas Terraria</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 
 <body>
@@ -260,7 +261,7 @@
 
         <div class="actions-panel">
             <div class="control-row" style="margin-bottom: 5px;">
-                <label style="color: #ccc; font-weight: bold; font-size: 11px;">Tamanho:</label>
+                <label style="color: #ccc; font-weight: bold; font-size: 11px;">Tamanho da Exportação:</label>
                 <select id="tipoExportacao" style="flex: 1; margin-left: 5px;">
                     <option value="canvas">Tela Inteira (Canvas)</option>
                     <option value="objeto">Apenas o Objeto (Cropped)</option>
@@ -268,7 +269,7 @@
             </div>
 
             <div class="control-row" style="margin-bottom: 5px;">
-                <label style="color: #ccc; font-weight: bold; font-size: 11px;">Qualidade:</label>
+                <label style="color: #ccc; font-weight: bold; font-size: 11px;">Qualidade (WebM):</label>
                 <select id="qualidadeExportacao" style="flex: 1; margin-left: 5px;">
                     <option value="2500000">Normal (2.5 Mbps)</option>
                     <option value="8000000">Alta (8 Mbps)</option>
@@ -277,7 +278,10 @@
             </div>
 
             <button onclick="playAnimation()">Play Animação</button>
-            <button class="btn-export" onclick="exportVideo()">Exportar WebM</button>
+            <div style="display:flex; gap: 10px;">
+                <button class="btn-export" onclick="exportVideo()" style="flex:1;">Gerar WebM</button>
+                <button class="btn-export btn-zip" onclick="exportZIP()" style="flex:1;">ZIP (Frames PNG)</button>
+            </div>
         </div>
     </div>
 

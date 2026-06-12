@@ -16,8 +16,6 @@ const inputIds = [
     'distanciaTexto', 'rotacaoTexto', 'canvasWidth', 'canvasHeight', 'tipoExportacao', 'qualidadeExportacao'
 ];
 
-const exportButton = document.getElementsByClassName("btn-export")[0]
-
 function updateCanvasSize() {
     if (isRecording) return;
     const w = parseInt(document.getElementById('canvasWidth').value) || 1920;
@@ -421,8 +419,6 @@ function drawFrame(progress) {
             dirMult *= -1;
         }
 
-        ctx.rotate(rotacaoTexto * Math.PI / 180);
-
         finalOffset = afastamentoBase * dirMult;
         ctx.translate(0, finalOffset);
 
@@ -441,7 +437,10 @@ function drawFrame(progress) {
         if (bWidth > 0) {
             ctx.lineJoin = 'round';
             ctx.miterLimit = 2;
+
+            // CORREÇÃO: O multiplicador foi removido para garantir a espessura exata idêntica à forma geométrica
             ctx.lineWidth = bWidth;
+
             ctx.strokeStyle = stroke;
             ctx.strokeText(textCompleto, 0, 0);
         }
@@ -520,53 +519,58 @@ exportOriginalHeight = parseInt(document.getElementById('canvasHeight').value) |
 let mediaRecorder;
 let recordedChunks = [];
 
+function cropCanvasForExport() {
+    const blocks = Math.floor(parseFloat(document.getElementById('tamanho').value)) || 1;
+    const distance = blocks * 16;
+    const baseArrowSize = parseFloat(document.getElementById('tamanhoSeta').value);
+    const bWidth = parseFloat(document.getElementById('borderWidth').value);
+    const zoom = parseFloat(document.getElementById('zoom').value);
+    const angle = parseInt(document.getElementById('angulo').value);
+    const tamanhoFonte = parseFloat(document.getElementById('tamanhoFonte').value);
+    const distTexto = parseFloat(document.getElementById('distanciaTexto').value);
+    const mostrarSetas = document.getElementById('mostrarSetas').checked;
+    const mostrarTexto = document.getElementById('mostrarTexto').checked;
+    const halfLine = parseFloat(document.getElementById('espessuraLinha').value) / 2;
+
+    const baseLen = (baseArrowSize * Math.SQRT2) / 2;
+
+    let wObj = distance + (mostrarSetas ? baseLen * 2 : 0) + bWidth * 2;
+    let hObj = (mostrarSetas ? baseLen * 2 : halfLine * 2) + bWidth * 2;
+
+    if (mostrarTexto) {
+        const offsetRef = mostrarSetas ? baseLen : halfLine;
+        const afastamento = offsetRef + bWidth + distTexto + tamanhoFonte;
+        hObj = Math.max(hObj, afastamento * 2);
+    }
+
+    wObj *= zoom;
+    hObj *= zoom;
+
+    const rad = angle * Math.PI / 180;
+    let finalW = Math.abs(wObj * Math.cos(rad)) + Math.abs(hObj * Math.sin(rad));
+    let finalH = Math.abs(wObj * Math.sin(rad)) + Math.abs(hObj * Math.cos(rad));
+
+    finalW += 60;
+    finalH += 60;
+
+    canvas.width = Math.ceil(finalW);
+    canvas.height = Math.ceil(finalH);
+}
+
 function exportVideo() {
     const tipoExportacao = document.getElementById('tipoExportacao').value;
     const qualidade = parseInt(document.getElementById('qualidadeExportacao').value) || 50000000;
+    const btnWebm = document.querySelectorAll(".btn-export")[0];
+    const btnZip = document.querySelectorAll(".btn-export")[1];
 
     if (tipoExportacao === 'objeto') {
-        const blocks = Math.floor(parseFloat(document.getElementById('tamanho').value)) || 1;
-        const distance = blocks * 16;
-        const baseArrowSize = parseFloat(document.getElementById('tamanhoSeta').value);
-        const bWidth = parseFloat(document.getElementById('borderWidth').value);
-        const zoom = parseFloat(document.getElementById('zoom').value);
-        const angle = parseInt(document.getElementById('angulo').value);
-        const tamanhoFonte = parseFloat(document.getElementById('tamanhoFonte').value);
-        const distTexto = parseFloat(document.getElementById('distanciaTexto').value);
-        const mostrarSetas = document.getElementById('mostrarSetas').checked;
-        const mostrarTexto = document.getElementById('mostrarTexto').checked;
-        const halfLine = parseFloat(document.getElementById('espessuraLinha').value) / 2;
-
-        const baseLen = (baseArrowSize * Math.SQRT2) / 2;
-
-        let wObj = distance + (mostrarSetas ? baseLen * 2 : 0) + bWidth * 2;
-        let hObj = (mostrarSetas ? baseLen * 2 : halfLine * 2) + bWidth * 2;
-
-        if (mostrarTexto) {
-            const offsetRef = mostrarSetas ? baseLen : halfLine;
-            const afastamento = offsetRef + bWidth + distTexto + tamanhoFonte;
-            hObj = Math.max(hObj, afastamento * 2);
-        }
-
-        wObj *= zoom;
-        hObj *= zoom;
-
-        const rad = angle * Math.PI / 180;
-        let finalW = Math.abs(wObj * Math.cos(rad)) + Math.abs(hObj * Math.sin(rad));
-        let finalH = Math.abs(wObj * Math.sin(rad)) + Math.abs(hObj * Math.cos(rad));
-
-        finalW += 60;
-        finalH += 60;
-
-        canvas.width = Math.ceil(finalW);
-        canvas.height = Math.ceil(finalH);
+        cropCanvasForExport();
     } else {
         canvas.width = exportOriginalWidth;
         canvas.height = exportOriginalHeight;
     }
 
     const stream = canvas.captureStream(60);
-    // CONFIGURAÇÃO DO BITRATE APLICADA AQUI
     const options = {
         mimeType: 'video/webm; codecs=vp9',
         videoBitsPerSecond: qualidade
@@ -584,17 +588,11 @@ function exportVideo() {
     mediaRecorder.onstop = handleStop;
 
     isRecording = true;
-    exportButton.disabled = true;
-    exportButton.innerText = "Gerando o WebM...";
+    btnWebm.disabled = true;
+    btnZip.disabled = true;
+    btnWebm.innerText = "Gerando o WebM...";
     mediaRecorder.start();
     playAnimation();
-}
-
-function stopRecording() {
-    mediaRecorder.stop();
-    isRecording = false;
-    exportButton.innerText = "Exportar WebM";
-    exportButton.disabled = false;
 }
 
 function handleStop() {
@@ -608,9 +606,89 @@ function handleStop() {
     a.click();
     window.URL.revokeObjectURL(url);
 
+    restoreExportUI();
+}
+
+// NOVA FUNÇÃO: Exportar Sequência de Imagens (ZIP) com precisão milimétrica e transparência real
+async function exportZIP() {
+    if (typeof JSZip === 'undefined') {
+        alert("A biblioteca JSZip não foi carregada. Verifique sua conexão com a internet ou adicione a tag no HTML.");
+        return;
+    }
+
+    const btnWebm = document.querySelectorAll(".btn-export")[0];
+    const btnZip = document.querySelectorAll(".btn-export")[1];
+
+    btnWebm.disabled = true;
+    btnZip.disabled = true;
+    isRecording = true;
+
+    const zip = new JSZip();
+    const duration = parseInt(document.getElementById('velocidade').value);
+    const fps = 60;
+    // Captura os frames da animação + meio segundo de "respiro" no final
+    const totalFrames = Math.ceil((duration / 1000) * fps) + 30;
+
+    // Processamento de Crop
+    const tipoExportacao = document.getElementById('tipoExportacao').value;
+    if (tipoExportacao === 'objeto') {
+        cropCanvasForExport();
+    } else {
+        canvas.width = exportOriginalWidth;
+        canvas.height = exportOriginalHeight;
+    }
+
+    // Desliga obrigatoriamente qualquer fundo verde, pois a sequência PNG tem o objetivo de ser 100% transparente
+    const inputFundo = document.getElementById('usarFundo');
+    const fundoOriginal = inputFundo.checked;
+    inputFundo.checked = false;
+
+    // Rendering assíncrono para garantir que não perde frames
+    for (let i = 0; i <= totalFrames; i++) {
+        let progress = i / ((duration / 1000) * fps);
+        if (progress > 1) progress = 1;
+
+        drawFrame(progress);
+
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        const frameNum = String(i).padStart(4, '0');
+        zip.file(`frame_${frameNum}.png`, blob);
+
+        btnZip.innerText = `Gerando ${i}/${totalFrames}`;
+    }
+
+    btnZip.innerText = "Compactando ZIP...";
+
+    try {
+        const content = await zip.generateAsync({ type: "blob" });
+        const url = URL.createObjectURL(content);
+        const a = document.createElement('a');
+        document.body.appendChild(a);
+        a.style = 'display: none';
+        a.href = url;
+        a.download = `medida_terraria_${document.getElementById('tamanho').value}_blocos_PNG.zip`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    } catch (e) {
+        alert("Houve um erro ao gerar o arquivo ZIP.");
+    }
+
+    inputFundo.checked = fundoOriginal;
+    restoreExportUI();
+}
+
+function restoreExportUI() {
     canvas.width = exportOriginalWidth;
     canvas.height = exportOriginalHeight;
     drawFrame(1);
+
+    isRecording = false;
+    const btnWebm = document.querySelectorAll(".btn-export")[0];
+    const btnZip = document.querySelectorAll(".btn-export")[1];
+    btnWebm.disabled = false;
+    btnZip.disabled = false;
+    btnWebm.innerText = "Gerar WebM";
+    btnZip.innerText = "ZIP (Frames PNG)";
 }
 
 loadConfig();
