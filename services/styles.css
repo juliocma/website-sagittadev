@@ -1,0 +1,31 @@
+/* CSS Personalizado para a Aplicação SagittaDev */
+
+@media print {
+    body {
+        background: white !important;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+    .no-print {
+        display: none !important;
+    }
+    .print-container {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+}
+
+button, input, select, textarea {
+    transition: all 0.15s ease-in-out;
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+    height: 6px;
+}
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 9999px;
+}

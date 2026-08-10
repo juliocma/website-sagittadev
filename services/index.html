@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SagittaDev - Gerenciador de Atendimentos Técnicos</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Estilos Personalizados -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+    <div class="max-w-6xl mx-auto p-4 sm:p-6">
+        <!-- Header Principal Limpo -->
+        <header
+            class="bg-white rounded-2xl shadow-sm p-6 mb-4 flex flex-col sm:flex-row justify-between items-center no-print gap-4">
+            <div class="flex items-center gap-4">
+                <!-- Logo Fixa do Header: img/logo_1.png (600x600) -->
+                <div
+                    class="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden shadow-sm">
+                    <img src="img/logo_1.png" alt="SagittaDev Logo" class="w-full h-full object-contain p-1"
+                        onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\'text-indigo-600 font-black text-xl\'>S</span>';">
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <span id="appHeaderCompanyName">SagittaDev</span>
+                        <span
+                            class="text-xs font-normal bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full border border-indigo-100">TI
+                            &amp; Gestão</span>
+                    </h1>
+                    <p class="text-sm text-slate-500">Gestão de chamados, faturamento, cadastros e relatórios de
+                        cobrança.</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Barra de Navegação Principal -->
+        <nav class="bg-white p-2 rounded-2xl shadow-sm mb-6 flex flex-wrap gap-2 border border-slate-100 no-print">
+            <button onclick="switchTab('attendances')" id="tab-btn-attendances"
+                class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium transition hover:bg-indigo-700 shadow-sm flex items-center gap-2">
+                <span>🛠️</span> Atendimentos
+            </button>
+            <button onclick="switchTab('faturamento')" id="tab-btn-faturamento"
+                class="px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl text-sm font-medium transition hover:bg-slate-200 flex items-center gap-2">
+                <span>📊</span> Faturamento
+            </button>
+            <button onclick="switchTab('cadastros')" id="tab-btn-cadastros"
+                class="px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl text-sm font-medium transition hover:bg-slate-200 flex items-center gap-2">
+                <span>⚙️</span> Cadastros &amp; Configurações
+            </button>
+            <button onclick="switchTab('report')" id="tab-btn-report"
+                class="px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl text-sm font-medium transition hover:bg-slate-200 flex items-center gap-2">
+                <span>📄</span> Relatórios
+            </button>
+        </nav>
+
+        <!-- TAB 1: ATENDIMENTOS -->
+        <div id="section-attendances" class="space-y-6">
+            <div class="bg-white p-2 rounded-2xl shadow-sm flex flex-wrap gap-2 border border-slate-100 no-print">
+                <button onclick="switchAttSubTab('form')" id="subtab-btn-att-form"
+                    class="px-4 py-2 rounded-xl text-sm font-medium transition bg-indigo-600 text-white">➕ Novo
+                    Atendimento</button>
+                <button onclick="switchAttSubTab('list')" id="subtab-btn-att-list"
+                    class="px-4 py-2 rounded-xl text-sm font-medium transition bg-slate-100 text-slate-600 hover:bg-slate-200">📋
+                    Lista de Atendimentos</button>
+            </div>
+
+            <!-- SUB-TAB 1: FORMULÁRIO DE ATENDIMENTO -->
+            <div id="att-subtab-form" class="bg-white rounded-2xl shadow-sm p-6 sm:p-8 no-print">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900" id="att-form-title">➕ Registrar Novo Atendimento
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Preencha os detalhes da ordem de serviço abaixo.</p>
+                    </div>
+                    <div
+                        class="bg-indigo-50 border border-indigo-100 text-indigo-700 px-3.5 py-1.5 rounded-xl font-mono text-sm font-bold flex items-center gap-2">
+                        <span>Código:</span>
+                        <span id="attCodeDisplay">#001</span>
+                    </div>
+                </div>
+
+                <form id="attendanceForm" onsubmit="saveAttendance(event)" class="space-y-5">
+                    <input type="hidden" id="attEditIndex" value="">
+                    <input type="hidden" id="attCodeInput" value="">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <!-- Searchable Combobox Cliente -->
+                        <div>
+                            <label
+                                class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Cliente</label>
+                            <div class="relative">
+                                <input type="text" id="attClientInput" list="dl-att-clients"
+                                    oninput="onClientInputChange()" placeholder="Digite ou selecione o cliente..."
+                                    required
+                                    class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm bg-white">
+                                <datalist id="dl-att-clients"></datalist>
+                            </div>
+                        </div>
+
+                        <!-- Searchable Combobox Solicitante -->
+                        <div>
+                            <label
+                                class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Solicitante</label>
+                            <div class="relative">
+                                <input type="text" id="attRequestorInput" list="dl-att-requestors"
+                                    placeholder="Digite ou selecione o solicitante..." required
+                                    class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm bg-white">
+                                <datalist id="dl-att-requestors"></datalist>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <!-- Searchable Combobox Serviço -->
+                        <div class="md:col-span-2">
+                            <label
+                                class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Serviço
+                                / Tabela de Preço (Opcional)</label>
+                            <div class="relative">
+                                <input type="text" id="attServiceInput" list="dl-att-services"
+                                    oninput="onServiceInputChange()"
+                                    placeholder="Digite para pesquisar serviço na tabela..."
+                                    class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm bg-white">
+                                <datalist id="dl-att-services"></datalist>
+                            </div>
+                        </div>
+
+                        <!-- Tipo de Atendimento (Remoto vs Presencial) -->
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Tipo
+                                de Atendimento</label>
+                            <select id="attTypeSelect" required
+                                class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm bg-white font-medium">
+                                <option value="Remoto">💻 Remoto</option>
+                                <option value="Presencial">🏢 Presencial</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div>
+                            <label
+                                class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Data</label>
+                            <input type="date" id="attDate" required
+                                class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Dia
+                                da Semana</label>
+                            <input type="text" id="attWeekday" readonly
+                                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-600 text-sm font-medium">
+                        </div>
+                        <!-- Searchable Combobox Atendente -->
+                        <div>
+                            <label
+                                class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Atendente</label>
+                            <div class="relative">
+                                <input type="text" id="attTechnicianInput" list="dl-att-techs"
+                                    placeholder="Digite ou selecione o atendente..." required
+                                    class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm bg-white">
+                                <datalist id="dl-att-techs"></datalist>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+                        <div>
+                            <label
+                                class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Início</label>
+                            <input type="time" id="attStartTime" required onchange="calculateHours()"
+                                class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Fim</label>
+                            <input type="time" id="attEndTime" required onchange="calculateHours()"
+                                class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Qtd
+                                Horas</label>
+                            <input type="number" step="0.5" id="attHours" required
+                                class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"
+                                placeholder="Ex: 1">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Valor
+                                Hora (R$)</label>
+                            <input type="number" step="0.01" id="attHourlyRate" value="70.00" required
+                                class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Status
+                            de Pagamento</label>
+                        <div class="flex items-center gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="attPaid" class="sr-only peer">
+                                <div
+                                    class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600 relative">
+                                </div>
+                                <span class="ml-3 text-sm font-medium text-slate-700" id="attPaidLabel">⏳ Pendente de
+                                    Pagamento</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Resumo
+                            das Ações Executadas</label>
+                        <textarea id="attSummary" rows="4" required
+                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm"
+                            placeholder="Descreva os procedimentos e serviços efetuados..."></textarea>
+                    </div>
+
+                    <div class="flex gap-3 pt-3 border-t border-slate-100">
+                        <button type="submit"
+                            class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl text-sm transition shadow-sm">Salvar
+                            Atendimento</button>
+                        <button type="button" onclick="resetAttendanceForm()"
+                            class="px-6 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-3 rounded-xl text-sm transition">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- SUB-TAB 2: LISTA DE ATENDIMENTOS (Título acima dos Filtros, Filtros acima da Tabela) -->
+            <div id="att-subtab-list" class="hidden bg-white rounded-2xl shadow-sm p-6 space-y-5">
+                <!-- 1. Título da Página -->
+                <div class="pb-3 border-b border-slate-100">
+                    <h2 class="text-xl font-bold text-slate-900">📋 Atendimentos Registrados</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Histórico completo de chamados com busca, filtros por
+                        período e status de pagamento.</p>
+                </div>
+
+                <!-- 2. Barra de Filtros (Posicionada acima da Tabela) -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80 flex flex-wrap items-center gap-3">
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Buscar
+                            Chamado</label>
+                        <input type="text" id="filterClient" placeholder="Buscar código, cliente ou solicitante..."
+                            oninput="onFilterChange()"
+                            class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Data
+                            Inicial</label>
+                        <input type="date" id="filterStartDate" onchange="onFilterChange()"
+                            class="px-3 py-1.5 border border-slate-200 rounded-xl text-xs bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Data Final</label>
+                        <input type="date" id="filterEndDate" onchange="onFilterChange()"
+                            class="px-3 py-1.5 border border-slate-200 rounded-xl text-xs bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Status
+                            Pagamento</label>
+                        <select id="filterPaidStatus" onchange="onFilterChange()"
+                            class="px-3 py-1.5 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="all">Todos os Status</option>
+                            <option value="pending" selected>⏳ Apenas Pendentes</option>
+                            <option value="paid">✅ Apenas Pagos</option>
+                        </select>
+                    </div>
+
+                    <div class="pt-5">
+                        <button onclick="clearAttFilters()"
+                            class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-semibold transition">Limpar
+                            Filtros</button>
+                    </div>
+                </div>
+
+                <!-- 3. Tabela de Atendimentos -->
+                <div class="overflow-x-auto border border-slate-100 rounded-xl">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr
+                                class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold text-xs uppercase tracking-wider">
+                                <th class="py-3 px-3">Código</th>
+                                <th class="py-3 px-3">Data</th>
+                                <th class="py-3 px-3">Cliente</th>
+                                <th class="py-3 px-3">Solicitante</th>
+                                <th class="py-3 px-3">Tipo</th>
+                                <th class="py-3 px-3">Horas / Período</th>
+                                <th class="py-3 px-3">Status</th>
+                                <th class="py-3 px-3">Total</th>
+                                <th class="py-3 px-3 text-right no-print">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+
+                <!-- Paginação -->
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2 text-sm no-print">
+                    <div class="flex items-center gap-2 text-xs text-slate-500">
+                        <span>Exibindo <strong id="pageRangeText">0-0</strong> de <strong
+                                id="totalRecordsText">0</strong> registros</span>
+                        <span class="mx-1">•</span>
+                        <span>Itens por página:</span>
+                        <select id="pageSizeSelect" onchange="changePageSize()"
+                            class="px-2 py-1 border border-slate-200 rounded-lg text-xs bg-white">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-1.5" id="paginationButtons"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: FATURAMENTO E CAIXA -->
+        <div id="section-faturamento" class="hidden space-y-6">
+            <div
+                class="bg-white rounded-2xl shadow-sm p-6 no-print flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">📊 Painel Financeiro e Faturamento</h2>
+                    <p class="text-xs text-slate-500">Acompanhamento consolidado de recebimentos e valores pendentes por
+                        cliente.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Filtrar Cliente:</label>
+                        <input type="text" id="billingClientInput" list="dl-billing-clients"
+                            oninput="renderBillingTab()" placeholder="Todos os clientes..."
+                            class="px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white min-w-[200px]">
+                        <datalist id="dl-billing-clients"></datalist>
+                    </div>
+                    <button onclick="clearBillingClientFilter()"
+                        class="mt-5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-medium transition">Ver
+                        Todos</button>
+                </div>
+            </div>
+
+            <!-- Cards de Indicadores (KPIs) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div
+                    class="bg-white rounded-2xl shadow-sm p-6 border-l-4 border-emerald-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Recebido (Pago)</p>
+                        <h3 class="text-2xl font-black text-emerald-600 mt-1" id="kpiReceivedVal">R$ 0,00</h3>
+                        <p class="text-xs text-slate-500 mt-1"><span id="kpiReceivedCount">0</span> chamados quitados
+                        </p>
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
+                        ✅</div>
+                </div>
+
+                <div
+                    class="bg-white rounded-2xl shadow-sm p-6 border-l-4 border-amber-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total a Receber (Pendente)
+                        </p>
+                        <h3 class="text-2xl font-black text-amber-600 mt-1" id="kpiPendingVal">R$ 0,00</h3>
+                        <p class="text-xs text-slate-500 mt-1"><span id="kpiPendingCount">0</span> chamados a cobrar</p>
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">
+                        ⏳</div>
+                </div>
+
+                <div
+                    class="bg-white rounded-2xl shadow-sm p-6 border-l-4 border-indigo-600 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Faturamento Geral</p>
+                        <h3 class="text-2xl font-black text-indigo-900 mt-1" id="kpiTotalVal">R$ 0,00</h3>
+                        <p class="text-xs text-slate-500 mt-1"><span id="kpiTotalCount">0</span> chamados totais</p>
+                    </div>
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">
+                        📈</div>
+                </div>
+            </div>
+
+            <!-- Tabela Discriminada por Cliente -->
+            <div class="bg-white rounded-2xl shadow-sm p-6">
+                <h3 class="text-base font-bold text-slate-900 mb-4">🏢 Faturamento por Cliente</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr
+                                class="border-b border-slate-100 text-slate-400 font-medium text-xs uppercase tracking-wider">
+                                <th class="py-3 px-3">Cliente</th>
+                                <th class="py-3 px-3">A Receber (Pendente)</th>
+                                <th class="py-3 px-3">Recebido (Pago)</th>
+                                <th class="py-3 px-3">Faturamento Total</th>
+                                <th class="py-3 px-3 text-right">Status do Caixa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="billingTableBody" class="divide-y divide-slate-100"></tbody>
+                        <tfoot id="billingTableFooter" class="bg-slate-50 font-bold border-t-2 border-slate-200">
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: CADASTROS -->
+        <div id="section-cadastros" class="hidden space-y-6">
+            <div class="bg-white p-2 rounded-2xl shadow-sm flex flex-wrap gap-2 border border-slate-100">
+                <button onclick="switchSubTab('clientes')" id="subtab-btn-clientes"
+                    class="px-4 py-2 rounded-xl text-sm font-medium transition bg-indigo-600 text-white">🏢
+                    Clientes</button>
+                <button onclick="switchSubTab('solicitantes')" id="subtab-btn-solicitantes"
+                    class="px-4 py-2 rounded-xl text-sm font-medium transition bg-slate-100 text-slate-600 hover:bg-slate-200">🙋‍♂️
+                    Solicitantes</button>
+                <button onclick="switchSubTab('servicos')" id="subtab-btn-servicos"
+                    class="px-4 py-2 rounded-xl text-sm font-medium transition bg-slate-100 text-slate-600 hover:bg-slate-200">⚙️
+                    Serviços e Preços</button>
+                <button onclick="switchSubTab('atendentes')" id="subtab-btn-atendentes"
+                    class="px-4 py-2 rounded-xl text-sm font-medium transition bg-slate-100 text-slate-600 hover:bg-slate-200">👤
+                    Atendentes</button>
+                <button onclick="switchSubTab('pix')" id="subtab-btn-pix"
+                    class="px-4 py-2 rounded-xl text-sm font-medium transition bg-slate-100 text-slate-600 hover:bg-slate-200">💳
+                    Dados Pix &amp; QR Code</button>
+                <button onclick="switchSubTab('empresa')" id="subtab-btn-empresa"
+                    class="px-4 py-2 rounded-xl text-sm font-medium transition bg-slate-100 text-slate-600 hover:bg-slate-200">🏷️
+                    Minha Empresa</button>
+                <button onclick="switchSubTab('backup')" id="subtab-btn-backup"
+                    class="px-4 py-2 rounded-xl text-sm font-medium transition bg-slate-100 text-slate-600 hover:bg-slate-200">💾
+                    Backup de Dados</button>
+            </div>
+
+            <!-- SUB-TAB: CLIENTES -->
+            <div id="subtab-clientes" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl shadow-sm p-6 md:col-span-1">
+                    <h2 class="text-base font-semibold text-slate-900 mb-4" id="clientFormTitle">➕ Novo Cliente</h2>
+                    <form id="clientForm" onsubmit="saveClient(event)" class="space-y-3">
+                        <input type="hidden" id="clientEditIndex" value="">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Nome do Cliente /
+                                Empresa</label>
+                            <input type="text" id="clientNameInput" required
+                                class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm"
+                                placeholder="Ex: See">
+                        </div>
+                        <div class="flex gap-2 pt-2">
+                            <button type="submit"
+                                class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-xl text-xs transition">Salvar
+                                Cliente</button>
+                            <button type="button" onclick="resetClientForm()"
+                                class="px-3 bg-slate-200 text-slate-600 py-2 rounded-xl text-xs">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm p-6 md:col-span-2">
+                    <h2 class="text-base font-semibold text-slate-900 mb-4">🏢 Clientes Cadastrados</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-100 text-slate-400 text-xs uppercase">
+                                    <th class="py-2">Cliente</th>
+                                    <th class="py-2 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientTableBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-TAB: SOLICITANTES -->
+            <div id="subtab-solicitantes" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl shadow-sm p-6 md:col-span-1">
+                    <h2 class="text-base font-semibold text-slate-900 mb-4" id="reqFormTitle">➕ Novo Solicitante</h2>
+                    <form id="reqForm" onsubmit="saveRequestor(event)" class="space-y-3">
+                        <input type="hidden" id="reqEditIndex" value="">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Cliente Vinculado</label>
+                            <input type="text" id="reqClientInput" list="dl-req-clients"
+                                placeholder="Digite para pesquisar o cliente..." required
+                                class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white">
+                            <datalist id="dl-req-clients"></datalist>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Nome do Solicitante</label>
+                            <input type="text" id="reqNameInput" required
+                                class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm"
+                                placeholder="Ex: Nivea">
+                        </div>
+                        <div class="flex gap-2 pt-2">
+                            <button type="submit"
+                                class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-xl text-xs transition">Salvar
+                                Solicitante</button>
+                            <button type="button" onclick="resetReqForm()"
+                                class="px-3 bg-slate-200 text-slate-600 py-2 rounded-xl text-xs">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm p-6 md:col-span-2">
+                    <h2 class="text-base font-semibold text-slate-900 mb-4">🙋‍♂️ Solicitantes Cadastrados</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-100 text-slate-400 text-xs uppercase">
+                                    <th class="py-2">Solicitante</th>
+                                    <th class="py-2">Cliente</th>
+                                    <th class="py-2 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reqTableBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-TAB: SERVIÇOS -->
+            <div id="subtab-servicos" class="hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-2xl shadow-sm p-6 md:col-span-1">
+                        <h2 class="text-base font-semibold text-slate-900 mb-4" id="svcFormTitle">➕ Novo Serviço</h2>
+                        <form id="svcForm" onsubmit="saveService(event)" class="space-y-3">
+                            <input type="hidden" id="svcEditIndex" value="">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">Nome do Serviço</label>
+                                <input type="text" id="svcNameInput" required
+                                    class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm"
+                                    placeholder="Ex: Formatação">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">Descrição</label>
+                                <textarea id="svcDescInput" rows="3" required
+                                    class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm"
+                                    placeholder="Descrição do serviço..."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">Valor / Preço</label>
+                                <input type="text" id="svcValueInput" required
+                                    class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm"
+                                    placeholder="Ex: R$ 150,00 ou R$ 70,00/h ou -">
+                            </div>
+                            <div class="flex gap-2 pt-2">
+                                <button type="submit"
+                                    class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-xl text-xs transition">Salvar
+                                    Serviço</button>
+                                <button type="button" onclick="resetSvcForm()"
+                                    class="px-3 bg-slate-200 text-slate-600 py-2 rounded-xl text-xs">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-sm p-6 md:col-span-2">
+                        <h2 class="text-base font-semibold text-slate-900 mb-4">⚙️ Tabela e Catálogo de Serviços</h2>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-100 text-slate-400 text-xs uppercase">
+                                        <th class="py-2 px-2">Nome</th>
+                                        <th class="py-2 px-2">Descrição</th>
+                                        <th class="py-2 px-2">Valor</th>
+                                        <th class="py-2 px-2 text-right">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="svcTableBody" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                        <div
+                            class="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1">
+                            <p class="font-bold text-slate-800">📌 Observações Importantes:</p>
+                            <p>• Os atendimentos são cobrados por hora cheia e têm a cobrança mínima de 1h.</p>
+                            <p>• Os atendimentos presenciais precisam ser previamente agendados.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-TAB: ATENDENTES -->
+            <div id="subtab-atendentes" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl shadow-sm p-6 md:col-span-1">
+                    <h2 class="text-base font-semibold text-slate-900 mb-4" id="techFormTitle">➕ Novo Atendente</h2>
+                    <form id="techForm" onsubmit="saveTechnician(event)" class="space-y-3">
+                        <input type="hidden" id="techEditIndex" value="">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Nome do Atendente</label>
+                            <input type="text" id="techNameInput" required
+                                class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm"
+                                placeholder="Ex: Priscilla ou Júlio">
+                        </div>
+                        <div class="flex gap-2 pt-2">
+                            <button type="submit"
+                                class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-xl text-xs transition">Salvar
+                                Atendente</button>
+                            <button type="button" onclick="resetTechForm()"
+                                class="px-3 bg-slate-200 text-slate-600 py-2 rounded-xl text-xs">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm p-6 md:col-span-2">
+                    <h2 class="text-base font-semibold text-slate-900 mb-4">👤 Atendentes Cadastrados</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-100 text-slate-400 text-xs uppercase">
+                                    <th class="py-2">Nome</th>
+                                    <th class="py-2 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="techTableBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-TAB: DADOS PIX & QR CODE -->
+            <div id="subtab-pix" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl shadow-sm p-6 md:col-span-1">
+                    <h2 class="text-base font-semibold text-slate-900 mb-4" id="pixFormTitle">➕ Novos Dados Pix</h2>
+                    <form id="pixForm" onsubmit="savePix(event)" class="space-y-3">
+                        <input type="hidden" id="pixEditIndex" value="">
+                        <input type="hidden" id="pixQrCodeBase64" value="">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Banco / Instituição</label>
+                            <input type="text" id="pixBankInput" required
+                                class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm"
+                                placeholder="Ex: inter">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Nome do Titular</label>
+                            <input type="text" id="pixHolderInput" required
+                                class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm"
+                                placeholder="Ex: Priscilla Ramos...">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Chave Pix (CNPJ / CPF /
+                                E-mail / Celular)</label>
+                            <input type="text" id="pixKeyInput" required
+                                class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm"
+                                placeholder="Ex: 53.375.537/0001-00">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Imagem do QR Code Pix
+                                (Opcional)</label>
+                            <input type="file" id="pixQrFileInput" accept="image/*" onchange="handleQrUpload(event)"
+                                class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                            <div id="qrPreviewContainer" class="mt-2 hidden flex items-center gap-2">
+                                <img id="qrPreviewImg" src=""
+                                    class="w-16 h-16 object-contain border border-slate-200 rounded-lg">
+                                <button type="button" onclick="removeQrCode()"
+                                    class="text-xs text-rose-600 hover:underline">Remover QR Code</button>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 pt-2">
+                            <button type="submit"
+                                class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-xl text-xs transition">Salvar
+                                Dados Pix</button>
+                            <button type="button" onclick="resetPixForm()"
+                                class="px-3 bg-slate-200 text-slate-600 py-2 rounded-xl text-xs">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm p-6 md:col-span-2">
+                    <h2 class="text-base font-semibold text-slate-900 mb-4">💳 Contas Pix Cadastradas</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-100 text-slate-400 text-xs uppercase">
+                                    <th class="py-2">QR</th>
+                                    <th class="py-2">Banco</th>
+                                    <th class="py-2">Titular</th>
+                                    <th class="py-2">Chave Pix</th>
+                                    <th class="py-2 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pixTableBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-TAB: EMPRESA -->
+            <div id="subtab-empresa" class="hidden max-w-2xl bg-white rounded-2xl shadow-sm p-6 space-y-4">
+                <h2 class="text-lg font-semibold text-slate-900 border-b border-slate-100 pb-3">🏷️ Configurações da
+                    Minha Empresa</h2>
+                <form id="companyForm" onsubmit="saveCompanyInfo(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Nome da
+                            Empresa</label>
+                        <input type="text" id="companyNameInput" value="SagittaDev" required
+                            class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Slogan
+                            ou Subtítulo</label>
+                        <input type="text" id="companySubtitleInput" value="Soluções e Serviços de TI"
+                            class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div
+                        class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 text-xs text-indigo-800 space-y-1">
+                        <p class="font-bold">📸 Logotipos da Empresa:</p>
+                        <p>• Header do Sistema: Carregado automaticamente de <code
+                                class="font-mono bg-white px-1 py-0.5 rounded border border-indigo-200">img/logo_1.png</code>
+                            (600x600 px).</p>
+                        <p>• Impressão do Relatório: Carregado automaticamente de <code
+                                class="font-mono bg-white px-1 py-0.5 rounded border border-indigo-200">img/logo_2.png</code>
+                            (1200x600 px).</p>
+                    </div>
+                    <div class="pt-2">
+                        <button type="submit"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-xl text-sm transition">Salvar
+                            Dados da Empresa</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- SUB-TAB: BACKUP & DADOS -->
+            <div id="subtab-backup" class="hidden max-w-2xl bg-white rounded-2xl shadow-sm p-6 space-y-6">
+                <h2 class="text-lg font-semibold text-slate-900 border-b border-slate-100 pb-3">💾 Importar e Exportar
+                    Backup</h2>
+
+                <div class="space-y-4">
+                    <div
+                        class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">Exportar Backup Completo (JSON)</h3>
+                            <p class="text-xs text-slate-500">Baixe uma cópia de segurança contendo todos os seus
+                                atendimentos e cadastros.</p>
+                        </div>
+                        <button onclick="exportData()"
+                            class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs rounded-xl transition whitespace-nowrap shadow-sm">
+                            📥 Baixar Backup JSON
+                        </button>
+                    </div>
+
+                    <div
+                        class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">Restaurar Backup Anterior</h3>
+                            <p class="text-xs text-slate-500">Selecione um arquivo de backup (.json) para restaurar os
+                                dados no sistema.</p>
+                        </div>
+                        <label
+                            class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs rounded-xl transition cursor-pointer whitespace-nowrap shadow-sm">
+                            📤 Restaurar Arquivo JSON
+                            <input type="file" id="importFile" class="hidden" onchange="importData(event)">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: GERADOR DE RELATÓRIO -->
+        <div id="section-report" class="hidden space-y-6">
+            <div
+                class="bg-white rounded-2xl shadow-sm p-6 no-print flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Cliente:</label>
+                        <input type="text" id="reportClientInput" list="dl-report-clients" oninput="generateReport()"
+                            placeholder="Digite para pesquisar..."
+                            class="px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white min-w-[180px]">
+                        <datalist id="dl-report-clients"></datalist>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Conta para Recebimento Pix:</label>
+                        <select id="reportPixSelect" onchange="generateReport()"
+                            class="px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white min-w-[200px]"></select>
+                    </div>
+                    <div class="flex items-center pt-5">
+                        <label class="inline-flex items-center cursor-pointer text-xs font-medium text-slate-600">
+                            <input type="checkbox" id="reportIncludePaid" onchange="generateReport()"
+                                class="rounded text-indigo-600 focus:ring-indigo-500 mr-1.5">
+                            Incluir pagamentos já concluídos
+                        </label>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Desconto (R$):</label>
+                        <input type="number" step="0.01" id="reportDiscount" value="0.00" oninput="generateReport()"
+                            class="w-24 px-3 py-1.5 border border-slate-200 rounded-xl text-sm">
+                    </div>
+                    <button onclick="openReportInNewTab()"
+                        class="mt-4 sm:mt-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl text-sm transition flex items-center gap-1.5 shadow-sm">
+                        <span>↗️ Abrir em Nova Aba / Imprimir PDF</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Preview do Relatório -->
+            <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm p-8 print-container border border-slate-200">
+                <div id="reportContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Principal Separado -->
+    <script src="script.js"></script>
+</body>
+
+</html>
