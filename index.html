@@ -149,7 +149,7 @@
     <path d="M67.895 170.667H4L35.06 152H98.955L67.895 170.667Z" fill="#4F1677"/><path d="M154.863 190.222H176.162C182.533 190.222 187.698 195.396 187.698 201.778C187.698 208.16 182.533 213.333 176.162 213.333H154.863C148.492 213.333 143.327 208.16 143.327 201.778C143.327 195.396 148.492 190.222 154.863 190.222Z" fill="#4F1677"/>
     <path d="M424.642 152L232 304L477 152H424.642Z" fill="#E16C52"/><path d="M424.642 152L232 0L477 152H424.642Z" fill="#FCAB38"/><path d="M372.283 152L232 304L424.642 152H372.283Z" fill="#B23F66"/><path d="M372.283 152L232 0L424.642 152H372.283Z" fill="#F88439"/>
   </symbol></svg>
-  <svg class="sagittarius-map" viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
+  <svg class="sagittarius-map" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
     <g class="constellation-lines">
       <path class="constellation-line" d="M570 90 630 145"/><path class="constellation-line" d="M630 145 680 130"/>
       <path class="constellation-line" d="M680 130 695 260"/><path class="constellation-line" d="M695 260 760 280"/>
@@ -266,6 +266,8 @@
       const canvas = document.getElementById('starfield');
       const context = canvas.getContext('2d');
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const compactScreen = window.matchMedia('(max-width: 600px)').matches;
+      const map = document.querySelector('.sagittarius-map');
       const routeLines = [...document.querySelectorAll('.constellation-line')];
       const constellationStars = [
         [570, 90, 4.8, 0], [630, 145, 3.3, 0], [680, 130, 4.7, 1],
@@ -278,6 +280,9 @@
         [475, 440, 3.5, 21], [560, 410, 4.8, 22]
       ];
       routeLines.forEach((line) => line.setAttribute('pathLength', '100'));
+      if (compactScreen) {
+        map.querySelector('.constellation-lines').setAttribute('transform', 'translate(-576 0) scale(1.8 1)');
+      }
       let stars = [];
       let scatteredStars = [];
       let width = 0;
@@ -285,11 +290,14 @@
       let frame = 0;
       let galaxyTexture;
       let journeyProgress = 0;
+      let lastDrawTime = 0;
       const pointer = { x: .5, y: .5 };
-      window.addEventListener('pointermove', (event) => {
-        pointer.x = event.clientX / Math.max(window.innerWidth, 1);
-        pointer.y = event.clientY / Math.max(window.innerHeight, 1);
-      }, { passive: true });
+      if (!compactScreen) {
+        window.addEventListener('pointermove', (event) => {
+          pointer.x = event.clientX / Math.max(window.innerWidth, 1);
+          pointer.y = event.clientY / Math.max(window.innerHeight, 1);
+        }, { passive: true });
+      }
 
       function paintSixPointStar(x, y, radius, color, energy = 0) {
         if (energy > 0) {
@@ -340,7 +348,7 @@
       }
 
       function resize() {
-        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        const ratio = Math.min(window.devicePixelRatio || 1, compactScreen ? 1 : 2);
         width = window.innerWidth;
         height = window.innerHeight;
         canvas.width = width * ratio;
@@ -358,7 +366,8 @@
           [91, 79, 193], [104, 79, 190], [87, 103, 211],
           [134, 85, 174], [163, 99, 170], [75, 108, 180]
         ];
-        for (let i = 0; i < 96; i += 1) {
+        const cloudCount = compactScreen ? 32 : 96;
+        for (let i = 0; i < cloudCount; i += 1) {
           const x = Math.random() * width - width / 2;
           const y = (Math.random() * 2 - 1) * height * .16;
           const radiusX = width * (.025 + Math.random() * .12);
@@ -375,7 +384,7 @@
           galaxyContext.fill();
         }
         galaxyContext.restore();
-        const count = Math.min(3200, Math.floor(width * height / 600));
+        const count = Math.min(compactScreen ? 520 : 3200, Math.floor(width * height / (compactScreen ? 1250 : 600)));
         stars = Array.from({ length: count }, () => {
           const x = Math.random() * width;
           const inGalaxy = Math.random() < .78;
@@ -392,7 +401,7 @@
             tint: Math.random() > .985 ? (Math.random() > .5 ? 28 : 38) : Math.random() > .38 ? (Math.random() > .5 ? 250 : 272) : (Math.random() > .5 ? 218 : 235)
           };
         });
-        scatteredStars = Array.from({ length: 120 }, () => ({
+        scatteredStars = Array.from({ length: compactScreen ? 0 : 120 }, () => ({
           x: Math.random() * width,
           y: Math.random() * height,
           radius: 1.8 + Math.random() * 1.2,
@@ -400,7 +409,12 @@
           color: Math.random() > .5 ? '#f5ad76' : '#c29bd5'
         }));
       }
-      function draw() {
+      function draw(timestamp = 0) {
+        if (compactScreen && !reduceMotion && timestamp - lastDrawTime < 32) {
+          requestAnimationFrame(draw);
+          return;
+        }
+        lastDrawTime = timestamp;
         context.clearRect(0, 0, width, height);
         if (galaxyTexture) {
           const cloudDrift = reduceMotion ? 0 : Math.sin(frame * .0007) * 8;
@@ -429,7 +443,12 @@
         constellationStars.forEach(([x, y, radius, activationLine]) => {
           const progress = Math.max(0, Math.min(1, journeyProgress * routeLines.length - activationLine));
           context.globalAlpha = .22 + progress * .78;
-          paintSixPointStar(x / 1440 * width, y / 900 * height, radius, '#ff9e4d', .12 + progress * .88);
+          const mapScale = Math.min(width / 1440, height / 900);
+          const mapOffsetX = (width - 1440 * mapScale) / 2;
+          const mapOffsetY = (height - 900 * mapScale) / 2;
+          const mapX = compactScreen ? 720 + (x - 720) * 1.8 : x;
+          const mapRadius = radius * mapScale * (compactScreen ? 1.8 : 1);
+          paintSixPointStar(mapOffsetX + mapX * mapScale, mapOffsetY + y * mapScale, mapRadius, '#ff9e4d', .12 + progress * .88);
         });
         context.globalAlpha = 1;
         if (!reduceMotion) frame += 1;
