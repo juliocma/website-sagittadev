@@ -1,162 +1,437 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SagittaDev - Em Breve</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --dark-purple: #1E1029;
-            --vibrant-orange: #FF7700;
-            --text-color: #E2E8F0;
-            --card-bg: rgba(42, 14, 58, 0.6);
-        }
-
-        body {
-            background-color: var(--dark-purple);
-            font-family: 'Poppins', sans-serif;
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
-
-        /* --- NOVA ANIMAÇÃO DE ESTRELAS COM PARALAXE --- */
-        @keyframes animate-stars {
-            from {
-                transform: translateY(0px);
-            }
-            to {
-                transform: translateY(-2000px);
-            }
-        }
-
-        .stars-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-
-        .stars, .stars2, .stars3 {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Gera estrelas usando box-shadow, uma técnica muito robusta */
-        .stars {
-            background: transparent;
-            height: 1px;
-            width: 1px;
-            box-shadow: /* Gerado aleatoriamente - 50 estrelas pequenas */
-                783px 1746px #FFF, 1539px 651px #FFF, 1684px 1729px #FFF, 501px 1823px #FFF, 163px 1858px #FFF, 1109px 1239px #FFF, 831px 156px #FFF, 353px 1195px #FFF, 1421px 182px #FFF, 192px 903px #FFF, 1928px 1483px #FFF, 510px 1864px #FFF, 1378px 1756px #FFF, 1060px 1018px #FFF, 1149px 1205px #FFF, 185px 1243px #FFF, 1589px 1133px #FFF, 946px 149px #FFF, 135px 451px #FFF, 1069px 1313px #FFF, 1789px 1784px #FFF, 757px 1695px #FFF, 189px 127px #FFF, 1713px 432px #FFF, 1513px 678px #FFF, 1383px 1163px #FFF, 1438px 1339px #FFF, 1481px 1680px #FFF, 1319px 134px #FFF, 1850px 1083px #FFF, 1139px 1269px #FFF, 1558px 1315px #FFF, 1924px 384px #FFF, 123px 1459px #FFF, 1303px 439px #FFF, 1346px 1308px #FFF, 134px 1085px #FFF, 1690px 1150px #FFF, 1496px 155px #FFF, 894px 621px #FFF, 1289px 1206px #FFF, 650px 1123px #FFF, 1375px 819px #FFF, 1735px 1024px #FFF, 34px 1587px #FFF, 1563px 120px #FFF, 1261px 1111px #FFF, 829px 1478px #FFF, 1819px 1616px #FFF;
-            animation: animate-stars 150s linear infinite;
-        }
-
-        .stars2 {
-            background: transparent;
-            height: 2px;
-            width: 2px;
-            box-shadow: /* Gerado aleatoriamente - 50 estrelas médias */
-                1604px 1599px #FFF, 1930px 132px #FFF, 218px 125px #FFF, 1082px 556px #FFF, 1999px 1007px #FFF, 1111px 1618px #FFF, 532px 1283px #FFF, 755px 1131px #FFF, 1804px 112px #FFF, 150px 1530px #FFF, 1332px 1184px #FFF, 735px 1362px #FFF, 488px 1161px #FFF, 1714px 1157px #FFF, 911px 1588px #FFF, 1588px 1682px #FFF, 1799px 1334px #FFF, 1330px 1860px #FFF, 1361px 1488px #FFF, 1373px 1675px #FFF, 709px 1198px #FFF, 712px 1818px #FFF, 687px 929px #FFF, 1756px 113px #FFF, 1145px 1605px #FFF, 1403px 130px #FFF, 1420px 1541px #FFF, 107px 1115px #FFF, 1319px 1109px #FFF, 1134px 1419px #FFF, 1118px 899px #FFF, 1215px 1868px #FFF, 869px 748px #FFF, 1891px 1407px #FFF, 1124px 1414px #FFF, 1693px 802px #FFF, 1143px 1319px #FFF, 1416px 1845px #FFF, 1032px 1493px #FFF, 1709px 1219px #FFF, 25px 811px #FFF, 1204px 1176px #FFF, 111px 1373px #FFF, 622px 1748px #FFF, 1739px 123px #FFF, 1344px 1008px #FFF, 1785px 590px #FFF, 1928px 1833px #FFF, 32px 1279px #FFF, 611px 110px #FFF;
-            animation: animate-stars 100s linear infinite;
-        }
-
-        .stars3 {
-            background: transparent;
-            height: 3px;
-            width: 3px;
-            box-shadow: /* Gerado aleatoriamente - 15 estrelas grandes */
-                581px 1172px #FFF, 180px 1292px #FFF, 1948px 1025px #FFF, 114px 1878px #FFF, 1017px 1399px #FFF, 328px 1050px #FFF, 1711px 172px #FFF, 43px 180px #FFF, 1600px 1569px #FFF, 663px 1100px #FFF, 1515px 1813px #FFF, 1269px 1083px #FFF, 1039px 70px #FFF, 1716px 1141px #FFF, 915px 1192px #FFF;
-            animation: animate-stars 75s linear infinite;
-        }
-        /* --- Fim da Animação --- */
-
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 650px;
-            padding: 40px 50px;
-            text-align: center;
-            background: var(--card-bg);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 119, 0, 0.2);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .logo-text {
-            font-weight: 700;
-            font-size: 2.5em;
-            margin: 0;
-            letter-spacing: 1px;
-        }
-
-        .logo-text span {
-            color: var(--vibrant-orange);
-        }
-
-        h1 {
-            font-size: 2em;
-            font-weight: 600;
-            margin: 20px 0 10px;
-        }
-
-        p {
-            font-size: 1.1em;
-            font-weight: 300;
-            line-height: 1.7;
-            margin-bottom: 30px;
-        }
-
-        .contact-link {
-            display: inline-block;
-            background-color: transparent;
-            color: var(--vibrant-orange);
-            padding: 12px 25px;
-            border: 2px solid var(--vibrant-orange);
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.1em;
-            transition: all 0.3s ease;
-        }
-
-        .contact-link:hover {
-            background-color: var(--vibrant-orange);
-            color: var(--dark-purple);
-            box-shadow: 0 0 25px rgba(255, 119, 0, 0.6);
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c0914">
+  <meta name="description" content="A Sagitta Dev desenvolve sites, sistemas e soluções digitais, além de consultoria de TI para empresas.">
+  <title>Sagitta Dev — Desenvolvimento e consultoria de TI</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #100817;
+      --ink-soft: #191022;
+      --purple: #984acb;
+      --purple-light: #c79be8;
+      --orange: #f1843e;
+      --orange-light: #ffbd73;
+      --text: #f4f0f8;
+      --muted: #aaa2b5;
+      --line: rgba(220, 205, 236, .12);
+      --page-width: 1160px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--ink);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    a { color: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--orange-light); outline-offset: 5px; }
+    ::selection { color: var(--ink); background: var(--orange-light); }
+    #starfield { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
+    .space-glow { position: fixed; inset: -18%; z-index: 0; overflow: hidden; pointer-events: none; opacity: .58; }
+    .space-glow::before, .space-glow::after { content: ""; position: absolute; inset: -15%; background: radial-gradient(ellipse at 50% 52%, rgba(72, 57, 135, .2), transparent 34%), radial-gradient(ellipse at 72% 49%, rgba(123, 59, 122, .13), transparent 30%), radial-gradient(ellipse at 25% 44%, rgba(39, 73, 133, .15), transparent 38%); filter: blur(86px); animation: nebula-drift 130s ease-in-out infinite alternate; }
+    .space-glow::after { inset: 4% -15%; opacity: .45; background: radial-gradient(ellipse at 35% 58%, rgba(92, 65, 153, .12), transparent 32%), radial-gradient(ellipse at 78% 42%, rgba(106, 67, 138, .1), transparent 34%); animation-duration: 170s; animation-direction: alternate-reverse; }
+    .sagittarius-map { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; opacity: .96; }
+    .constellation-line { fill: none; stroke: rgba(255, 158, 76, .9); stroke-width: 1.9; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; filter: drop-shadow(0 0 6px rgba(255,145,67,.43)); transition: stroke-dashoffset .18s linear; }
+    .sagittarius-star { fill: #ff9d52; opacity: .16; filter: url(#sagittarius-star-glow); transition: opacity .4s ease; }
+    .sagittarius-star.major { fill: #ffd08a; }
+    body > header, body > main, body > footer { position: relative; z-index: 1; }
+    .wrap { width: min(var(--page-width), calc(100% - 48px)); margin-inline: auto; }
+    .topbar { position: absolute; inset: 0 0 auto; z-index: 5; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .nav { min-height: 82px; display: flex; justify-content: space-between; align-items: center; gap: 28px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; text-decoration: none; font-size: 1.08rem; font-weight: 750; letter-spacing: -.04em; }
+    .brand-mark { width: 49px; height: 31px; display: inline-flex; align-items: center; }
+    .brand-mark svg { width: 49px; height: 32px; overflow: visible; }
+    .brand b { color: #bd7899; font-weight: 500; }
+    .nav-links { display: flex; align-items: center; gap: 34px; }
+    .nav-links a { color: #d0c5df; text-decoration: none; font-size: .9rem; transition: color .2s ease; }
+    .nav-links a:hover { color: var(--orange-light); }
+    .nav-links .nav-cta { padding: 10px 17px; color: var(--text); border: 1px solid rgba(255,129,61,.55); border-radius: 999px; }
+    .nav-links .nav-cta:hover { color: var(--ink); background: var(--orange); border-color: var(--orange); }
+    .menu-toggle { display: none; border: 1px solid var(--line); border-radius: 12px; color: var(--text); background: rgba(255,255,255,.04); padding: 9px 11px; font: inherit; cursor: pointer; }
+    .hero { position: relative; min-height: 740px; min-height: min(850px, 100svh); display: grid; align-items: center; padding: 136px 0 78px; }
+    .hero-grid { display: block; }
+    .hero-copy-block { max-width: 1040px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 10px; color: var(--orange-light); font-size: .75rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 24px; height: 1px; background: var(--orange); box-shadow: 0 0 10px var(--orange); }
+    h1 { max-width: 1040px; margin: 22px 0 20px; font-size: clamp(3.25rem, 6.8vw, 6rem); line-height: .99; letter-spacing: -.075em; font-weight: 760; }
+    h1 span { color: #c59dbd; text-shadow: 0 0 38px rgba(174,119,159,.17); }
+    .hero-copy { max-width: 540px; margin: 0; color: var(--muted); font-size: clamp(1rem, 1.5vw, 1.13rem); }
+    .hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 32px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 11px; min-height: 51px; padding: 0 21px; border: 1px solid transparent; border-radius: 999px; font-size: .91rem; font-weight: 720; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
+    .button:hover { transform: translateY(-3px); }
+    .button-primary { color: #201722; background: linear-gradient(110deg, #e8ae70, #d58454); box-shadow: 0 8px 32px rgba(213,132,84,.16); }
+    .button-primary:hover { box-shadow: 0 12px 38px rgba(213,132,84,.28); }
+    .button-secondary { border-color: var(--line); color: var(--text); background: rgba(255,255,255,.035); }
+    .button-secondary:hover { border-color: rgba(196,169,255,.45); background: rgba(157,112,255,.1); }
+    .button svg { width: 17px; height: 17px; }
+    .hero-note { display: flex; align-items: center; gap: 10px; margin-top: 39px; color: #9185a6; font-size: .78rem; }
+    .hero-note span { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 12px var(--orange); }
+    .scroll-hint { position: absolute; bottom: 27px; left: 50%; display: flex; align-items: center; gap: 10px; color: #8d829e; font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; transform: translateX(-50%); }
+    .scroll-hint::after { content: ""; width: 1px; height: 25px; background: linear-gradient(var(--orange), transparent); animation: scroll-line 1.6s ease-in-out infinite; }
+    .section { position: relative; padding: 114px 0; }
+    .section-heading { max-width: 650px; margin-bottom: 44px; }
+    .section-heading h2 { margin: 15px 0 12px; font-size: clamp(2.1rem, 4.5vw, 3.65rem); line-height: 1.08; letter-spacing: -.06em; }
+    .section-heading h2 span { color: var(--purple-light); }
+    .section-heading p { max-width: 550px; margin: 0; color: var(--muted); }
+    .services { border-top: 1px solid rgba(255,255,255,.055); background: linear-gradient(180deg, rgba(32,19,53,.34), rgba(17,10,31,.12)); }
+    .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .service-card { position: relative; min-height: 266px; padding: 28px; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.015)); transition: transform .28s ease, border-color .28s ease, background .28s ease; }
+    .service-card:hover { transform: translateY(-4px); border-color: rgba(211,164,137,.32); background: linear-gradient(145deg, rgba(121,85,139,.11), rgba(255,255,255,.025)); }
+    .service-card::after { content: ""; position: absolute; top: 0; left: 28px; width: 58px; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,174,105,.72), rgba(190,131,232,.42), transparent); opacity: .45; transition: width .35s ease, opacity .35s ease; }
+    .service-card:hover::after { width: 112px; opacity: .9; }
+    .service-icon { display: grid; width: 48px; height: 48px; place-items: center; margin-bottom: 29px; border: 1px solid rgba(217,138,69,.24); border-radius: 14px; color: var(--orange-light); background: rgba(217,138,69,.06); }
+    .service-icon svg { width: 23px; height: 23px; }
+    .service-card h3 { margin: 0 0 9px; font-size: 1.16rem; letter-spacing: -.025em; }
+    .service-card p { max-width: 310px; margin: 0; color: var(--muted); font-size: .9rem; }
+    .service-number { position: absolute; right: 25px; top: 27px; color: #716582; font-size: .72rem; letter-spacing: .12em; }
+    .manifesto { padding-top: 40px; }
+    .manifesto-card { position: relative; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 36px; padding: clamp(32px, 6vw, 66px); overflow: hidden; border: 1px solid rgba(173,139,242,.19); border-radius: 26px; background: radial-gradient(ellipse at 88% 50%, rgba(111,48,185,.25), transparent 40%), linear-gradient(115deg, rgba(39,23,63,.88), rgba(25,13,41,.88)); }
+    .manifesto h2 { position: relative; max-width: 650px; margin: 14px 0 12px; font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1.08; letter-spacing: -.06em; }
+    .manifesto p { position: relative; max-width: 600px; margin: 0; color: var(--muted); }
+    .manifesto .button { position: relative; white-space: nowrap; }
+    .footer { padding: 30px 0 38px; border-top: 1px solid rgba(255,255,255,.07); }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; color: #9286a4; font-size: .78rem; }
+    .footer p { margin: 0; }
+    .footer a { color: #d2c4e5; text-decoration: none; }
+    .footer a:hover { color: var(--orange-light); }
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .85s ease, transform .85s cubic-bezier(.2,.65,.3,1); }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+    @keyframes scroll-line { 0%,100% { opacity: .35; transform: scaleY(.65); transform-origin: top; } 50% { opacity: 1; transform: scaleY(1); } }
+    @keyframes nebula-drift { from { transform: translate3d(-2%, -1%, 0) rotate(-2deg) scale(1); } to { transform: translate3d(2%, 2%, 0) rotate(3deg) scale(1.08); } }
+    @media (max-width: 850px) {
+      .hero { min-height: auto; padding-top: 142px; }
+      .hero-copy-block { max-width: 690px; }
+      .scroll-hint { display: none; }
+      .service-grid { grid-template-columns: 1fr 1fr; }
+      .service-card:last-child { grid-column: span 2; }
+      .manifesto-card { grid-template-columns: 1fr; }
+      .manifesto-card .button { justify-self: start; }
+    }
+    @media (max-width: 600px) {
+      .wrap { width: min(100% - 36px, var(--page-width)); }
+      .nav { min-height: 70px; }
+      .menu-toggle { display: inline-flex; align-items: center; gap: 8px; }
+      .nav-links { position: absolute; top: 61px; left: 18px; right: 18px; display: none; align-items: stretch; gap: 0; padding: 10px; border: 1px solid var(--line); border-radius: 16px; background: rgba(20,11,37,.97); box-shadow: 0 18px 40px rgba(0,0,0,.35); }
+      .nav-links.is-open { display: flex; flex-direction: column; }
+      .nav-links a { padding: 12px; }
+      .nav-links .nav-cta { margin-top: 4px; text-align: center; }
+      .hero { padding: 126px 0 68px; }
+      h1 { font-size: clamp(3.1rem, 15vw, 5rem); }
+      .hero-actions { align-items: stretch; flex-direction: column; max-width: 300px; }
+      .section { padding: 82px 0; }
+      .service-grid { grid-template-columns: 1fr; }
+      .service-card, .service-card:last-child { grid-column: auto; min-height: 225px; }
+      .service-icon { margin-bottom: 22px; }
+      .manifesto { padding-top: 0; }
+      .manifesto-card { padding: 30px 24px; }
+      .footer-inner { align-items: flex-start; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      .reveal { opacity: 1; transform: none; }
+      .space-glow::before, .space-glow::after { animation: none; }
+    }
+  </style>
 </head>
 <body>
-    <div class="stars-wrapper">
-        <div class="stars"></div>
-        <div class="stars2"></div>
-        <div class="stars3"></div>
-    </div>
+  <div class="space-glow" aria-hidden="true"></div>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+  <svg aria-hidden="true" width="0" height="0" style="position:absolute"><symbol id="sagitta-mark" viewBox="0 0 481 312">
+    <path d="M204.559 90.6667H256.917C262.685 90.6667 267.083 91.1794 272.004 86.2222C278.069 80.1118 277.328 73.7778 272.891 64C268.454 54.2222 232 0 232 0L477 152H114.042L82.9815 133.333C82.9815 133.333 282.653 133.333 297.74 133.333C312.826 133.333 312.826 113.778 297.74 113.778C282.653 113.778 204.559 113.778 204.559 113.778C198.188 113.778 193.023 108.468 193.023 102.086C193.023 95.7044 198.188 90.6667 204.559 90.6667Z" fill="#B03871"/>
+    <path d="M67.895 133.333H4L35.06 152H98.955L67.895 133.333Z" fill="#B03871"/><path d="M131.79 113.778H153.089C159.46 113.778 164.625 108.604 164.625 102.222C164.625 95.84 159.46 90.667 153.089 90.667H131.79C125.419 90.667 120.254 95.84 120.254 102.222C120.254 108.604 125.419 113.778 131.79 113.778Z" fill="#B03871"/>
+    <path d="M227.632 213.333H256.917C262.685 213.333 267.083 212.821 272.004 217.778C278.069 223.888 277.328 230.222 272.891 240C268.454 249.778 232 304 232 304L477 152H114.042L82.981 170.667C82.981 170.667 282.653 170.667 297.739 170.667C312.826 170.667 312.826 190.222 297.739 190.222C282.653 190.222 227.632 190.222 227.632 190.222C221.261 190.222 216.096 195.532 216.096 201.914C216.096 208.296 221.261 213.333 227.632 213.333Z" fill="#4F1677"/>
+    <path d="M67.895 170.667H4L35.06 152H98.955L67.895 170.667Z" fill="#4F1677"/><path d="M154.863 190.222H176.162C182.533 190.222 187.698 195.396 187.698 201.778C187.698 208.16 182.533 213.333 176.162 213.333H154.863C148.492 213.333 143.327 208.16 143.327 201.778C143.327 195.396 148.492 190.222 154.863 190.222Z" fill="#4F1677"/>
+    <path d="M424.642 152L232 304L477 152H424.642Z" fill="#E16C52"/><path d="M424.642 152L232 0L477 152H424.642Z" fill="#FCAB38"/><path d="M372.283 152L232 304L424.642 152H372.283Z" fill="#B23F66"/><path d="M372.283 152L232 0L424.642 152H372.283Z" fill="#F88439"/>
+  </symbol></svg>
+  <svg class="sagittarius-map" viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
+    <defs><filter id="sagittarius-star-glow" x="-250%" y="-250%" width="600%" height="600%"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    <g class="constellation-lines">
+      <path class="constellation-line" d="M570 90 630 145"/><path class="constellation-line" d="M630 145 680 130"/>
+      <path class="constellation-line" d="M680 130 695 260"/><path class="constellation-line" d="M695 260 760 280"/>
+      <path class="constellation-line" d="M760 280 850 270"/><path class="constellation-line" d="M850 270 910 195"/>
+      <path class="constellation-line" d="M695 260 700 325"/><path class="constellation-line" d="M700 325 770 360"/>
+      <path class="constellation-line" d="M770 360 850 300"/><path class="constellation-line" d="M850 300 935 365"/>
+      <path class="constellation-line" d="M935 365 1010 400"/><path class="constellation-line" d="M1010 400 1110 350"/>
+      <path class="constellation-line" d="M850 270 850 300"/><path class="constellation-line" d="M935 365 900 465"/>
+      <path class="constellation-line" d="M900 465 810 520"/><path class="constellation-line" d="M810 520 700 455"/>
+      <path class="constellation-line" d="M700 455 620 500"/><path class="constellation-line" d="M620 500 560 620"/>
+      <path class="constellation-line" d="M560 620 590 790"/><path class="constellation-line" d="M590 790 720 735"/>
+      <path class="constellation-line" d="M720 735 780 840"/><path class="constellation-line" d="M560 620 475 440"/>
+      <path class="constellation-line" d="M475 440 560 410"/><path class="constellation-line" d="M560 410 620 500"/>
+    </g>
+    <g class="constellation-stars">
+      <circle class="sagittarius-star major" cx="570" cy="90" r="3.2"/><circle class="sagittarius-star" cx="630" cy="145" r="2.7"/><circle class="sagittarius-star major" cx="680" cy="130" r="4.2"/>
+      <circle class="sagittarius-star major" cx="695" cy="260" r="4.8"/><circle class="sagittarius-star" cx="760" cy="280" r="3.5"/><circle class="sagittarius-star major" cx="850" cy="270" r="4.5"/>
+      <circle class="sagittarius-star" cx="910" cy="195" r="3.4"/><circle class="sagittarius-star" cx="700" cy="325" r="2.8"/><circle class="sagittarius-star major" cx="770" cy="360" r="4.1"/>
+      <circle class="sagittarius-star" cx="850" cy="300" r="3.1"/><circle class="sagittarius-star major" cx="935" cy="365" r="4.3"/><circle class="sagittarius-star" cx="1010" cy="400" r="3.6"/>
+      <circle class="sagittarius-star major" cx="1110" cy="350" r="4.5"/><circle class="sagittarius-star" cx="900" cy="465" r="3"/><circle class="sagittarius-star" cx="810" cy="520" r="3.4"/>
+      <circle class="sagittarius-star major" cx="700" cy="455" r="4.2"/><circle class="sagittarius-star" cx="620" cy="500" r="3.6"/><circle class="sagittarius-star major" cx="560" cy="620" r="4.5"/>
+      <circle class="sagittarius-star" cx="590" cy="790" r="3.7"/><circle class="sagittarius-star major" cx="720" cy="735" r="4.2"/><circle class="sagittarius-star" cx="780" cy="840" r="3.8"/>
+      <circle class="sagittarius-star" cx="475" cy="440" r="3.1"/><circle class="sagittarius-star major" cx="560" cy="410" r="4.4"/>
+    </g>
+  </svg>
+  <header class="topbar">
+    <nav class="nav wrap" aria-label="Navegação principal">
+      <a class="brand" href="#inicio" aria-label="Sagitta Dev, início">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 481 312"><use href="#sagitta-mark"/></svg></span>
+        <span>Sagitta <b>Dev</b></span>
+      </a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span aria-hidden="true">☰</span> Menu</button>
+      <div class="nav-links" id="nav-links">
+        <a href="#servicos">O que fazemos</a>
+        <a href="#sobre">A Sagitta</a>
+        <a class="nav-cta" href="#contato">Vamos conversar <span aria-hidden="true">↗</span></a>
+      </div>
+    </nav>
+  </header>
 
-    <div class="container">
-        <h2 class="logo-text">Sagitta<span>Dev</span></h2>
-        
-        <h1>Apontando para o futuro digital.</h1>
-        
-        <p>
-            Nosso novo site está sendo desenvolvido com a mesma precisão e criatividade que dedicamos a cada projeto. Em breve, você encontrará um universo de soluções em software.
-        </p>
-        
-        <a href="mailto:contato@sagittadev.com.br" class="contact-link">Fale Conosco</a>
+  <main>
+    <section class="hero" id="inicio">
+      <div class="hero-grid wrap">
+        <div class="hero-copy-block">
+          <div class="eyebrow">Sagitta Dev · desenvolvimento & consultoria</div>
+          <h1>Tecnologia com direção<br><span>Projetos que avançam</span></h1>
+          <p class="hero-copy">Desenvolvemos sites e sistemas sob medida e orientamos empresas nas decisões de TI — do desenho da solução à entrega.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="mailto:contato@sagittadev.com.br?subject=Vamos%20conversar%20sobre%20um%20projeto">
+              Comece seu projeto <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="button button-secondary" href="#servicos">Conheça os serviços <span aria-hidden="true">↓</span></a>
+          </div>
+          <div class="hero-note"><span></span> Sites · Sistemas · Consultoria de TI</div>
+        </div>
+
+      </div>
+      <a class="scroll-hint" href="#servicos">Continue explorando</a>
+    </section>
+
+    <section class="section services" id="servicos">
+      <div class="wrap">
+        <div class="section-heading reveal">
+          <div class="eyebrow">O que fazemos</div>
+          <h2>Desenvolvimento de ponta a ponta</h2>
+          <p>Sites, sistemas e consultoria de TI alinhados aos desafios reais da sua empresa.</p>
+        </div>
+        <div class="service-grid">
+          <article class="service-card reveal">
+            <span class="service-number">01 / WEB</span>
+            <span class="service-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="15" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01M8 13h3m-3 3h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+            <h3>Sites & experiências digitais</h3>
+            <p>Sites rápidos, responsivos e pensados para transformar visitas em conexões reais.</p>
+          </article>
+          <article class="service-card reveal">
+            <span class="service-number">02 / SOFTWARE</span>
+            <span class="service-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="4" width="17" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="m9 9-2.5 3L9 15m6-6 2.5 3-2.5 3m-2-7-2 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <h3>Sistemas & software sob medida</h3>
+            <p>Aplicações e ferramentas digitais alinhadas aos processos e aos objetivos do seu negócio.</p>
+          </article>
+          <article class="service-card reveal">
+            <span class="service-number">03 / TECH</span>
+            <span class="service-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 4.5 7v5c0 4.5 3.2 7.7 7.5 9 4.3-1.3 7.5-4.5 7.5-9V7L12 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <h3>Consultoria de TI</h3>
+            <p>Orientação próxima para escolher tecnologias, simplificar processos e avançar com segurança.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section manifesto" id="sobre">
+      <div class="wrap">
+        <div class="manifesto-card reveal">
+          <div>
+            <div class="eyebrow">A Sagitta</div>
+            <h2>Foco para mirar<br><span style="color:var(--orange)">Tecnologia para avançar</span></h2>
+            <p>Inspirada pela flecha entre as estrelas, a Sagitta Dev une precisão e criatividade para desenvolver soluções digitais com propósito. Cada projeto começa entendendo onde você quer chegar.</p>
+          </div>
+          <a class="button button-secondary" href="mailto:contato@sagittadev.com.br?subject=Vamos%20conversar%20sobre%20um%20projeto">Conte sua ideia <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contato" style="padding-top:20px">
+      <div class="wrap section-heading reveal">
+        <div class="eyebrow">Próxima parada: sua ideia</div>
+        <h2>Vamos tirar seu projeto <span>da órbita?</span></h2>
+        <p>Conta pra gente o que você está imaginando. A primeira conversa pode ser o começo de algo incrível.</p>
+        <div class="hero-actions"><a class="button button-primary" href="mailto:contato@sagittadev.com.br?subject=Vamos%20conversar%20sobre%20um%20projeto">contato@sagittadev.com.br <span aria-hidden="true">↗</span></a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <a class="brand" href="#inicio"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 481 312"><use href="#sagitta-mark"/></svg></span><span>Sagitta <b>Dev</b></span></a>
+      <p>© <span id="year">2026</span> Sagitta Dev. Tecnologia com direção.</p>
+      <a href="mailto:contato@sagittadev.com.br">Fale com a gente ↗</a>
     </div>
+  </footer>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById('starfield');
+      const context = canvas.getContext('2d');
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const routeLines = [...document.querySelectorAll('.constellation-line')];
+      const routeStars = [...document.querySelectorAll('.sagittarius-star')];
+      routeLines.forEach((line) => line.setAttribute('pathLength', '100'));
+      let stars = [];
+      let width = 0;
+      let height = 0;
+      let frame = 0;
+      let galaxyTexture;
+      const pointer = { x: .5, y: .5 };
+      window.addEventListener('pointermove', (event) => {
+        pointer.x = event.clientX / Math.max(window.innerWidth, 1);
+        pointer.y = event.clientY / Math.max(window.innerHeight, 1);
+      }, { passive: true });
+
+      function resize() {
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width * ratio;
+        canvas.height = height * ratio;
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+        galaxyTexture = document.createElement('canvas');
+        galaxyTexture.width = width;
+        galaxyTexture.height = height;
+        const galaxyContext = galaxyTexture.getContext('2d');
+        galaxyContext.save();
+        galaxyContext.globalCompositeOperation = 'screen';
+        galaxyContext.translate(width / 2, height / 2);
+        galaxyContext.rotate(-.065);
+        const cloudColors = [
+          [91, 79, 193], [104, 79, 190], [87, 103, 211],
+          [134, 85, 174], [163, 99, 170], [75, 108, 180]
+        ];
+        for (let i = 0; i < 96; i += 1) {
+          const x = Math.random() * width - width / 2;
+          const y = (Math.random() * 2 - 1) * height * .16;
+          const radiusX = width * (.025 + Math.random() * .12);
+          const radiusY = height * (.008 + Math.random() * .045);
+          const color = cloudColors[Math.floor(Math.random() * cloudColors.length)];
+          const alpha = .012 + Math.random() * .034;
+          const cloud = galaxyContext.createRadialGradient(x, y, 0, x, y, radiusX);
+          cloud.addColorStop(0, `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`);
+          cloud.addColorStop(.55, `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha * .4})`);
+          cloud.addColorStop(1, `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0)`);
+          galaxyContext.fillStyle = cloud;
+          galaxyContext.beginPath();
+          galaxyContext.ellipse(x, y, radiusX, radiusY, Math.random() * .5 - .25, 0, Math.PI * 2);
+          galaxyContext.fill();
+        }
+        galaxyContext.restore();
+        const count = Math.min(2600, Math.floor(width * height / 700));
+        stars = Array.from({ length: count }, () => {
+          const x = Math.random() * width;
+          const inGalaxy = Math.random() < .78;
+          const bandCenter = height * .5 + (x - width / 2) * -.065;
+          const bandScatter = (Math.random() + Math.random() + Math.random() - 1.5) * height * .25;
+          return {
+            x,
+            y: inGalaxy ? bandCenter + bandScatter : Math.random() * height,
+            depth: Math.random(),
+            radius: Math.random() > .985 ? .65 + Math.random() * .45 : .1 + Math.random() * .42,
+            phase: Math.random() * Math.PI * 2,
+            speed: Math.random() * .0002 + .00008,
+            drift: Math.random() * .032 + .008,
+            tint: Math.random() > .985 ? (Math.random() > .5 ? 28 : 38) : Math.random() > .38 ? (Math.random() > .5 ? 250 : 272) : (Math.random() > .5 ? 218 : 235)
+          };
+        });
+      }
+      function draw() {
+        context.clearRect(0, 0, width, height);
+        if (galaxyTexture) {
+          const cloudDrift = reduceMotion ? 0 : Math.sin(frame * .0007) * 8;
+          context.globalAlpha = .92;
+          context.drawImage(galaxyTexture, cloudDrift, 0, width, height);
+          context.globalAlpha = 1;
+        }
+        for (const star of stars) {
+          const shimmer = reduceMotion ? .52 : .24 + star.depth * .22 + Math.sin(frame * star.speed + star.phase) * .07;
+          context.beginPath();
+          context.fillStyle = `hsla(${star.tint}, 90%, 88%, ${shimmer})`;
+          const pointerShiftX = reduceMotion ? 0 : (pointer.x - .5) * star.depth * 12;
+          const pointerShiftY = reduceMotion ? 0 : (pointer.y - .5) * star.depth * 9;
+          const y = (star.y + pointerShiftY + height) % height;
+          context.arc(star.x + pointerShiftX, y, star.radius, 0, Math.PI * 2);
+          context.fill();
+          if (!reduceMotion) {
+            star.y -= star.drift;
+            if (star.y < -2) star.y = height + 2;
+          }
+        }
+        if (!reduceMotion) frame += 1;
+        if (!reduceMotion) requestAnimationFrame(draw);
+      }
+      resize();
+      if (reduceMotion) draw();
+      else requestAnimationFrame(draw);
+      window.addEventListener('resize', () => {
+        resize();
+        if (reduceMotion) draw();
+      }, { passive: true });
+      let scrollQueued = false;
+      function updateJourney() {
+        if (scrollQueued) return;
+        scrollQueued = true;
+        requestAnimationFrame(() => {
+          const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+          const progress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+          routeLines.forEach((line, index) => {
+            const lineProgress = Math.max(0, Math.min(1, progress * routeLines.length - index));
+            line.style.strokeDashoffset = String(100 * (1 - lineProgress));
+          });
+          routeStars.forEach((star, index) => {
+            const starProgress = Math.max(0, Math.min(1, progress * routeLines.length - index));
+            star.style.opacity = String(.16 + starProgress * .84);
+          });
+          if (reduceMotion) draw();
+          scrollQueued = false;
+        });
+      }
+      window.addEventListener('scroll', updateJourney, { passive: true });
+      updateJourney();
+
+      const menuButton = document.querySelector('.menu-toggle');
+      const navLinks = document.getElementById('nav-links');
+      menuButton.addEventListener('click', () => {
+        const isOpen = menuButton.getAttribute('aria-expanded') === 'true';
+        menuButton.setAttribute('aria-expanded', String(!isOpen));
+        navLinks.classList.toggle('is-open', !isOpen);
+      });
+      navLinks.addEventListener('click', (event) => {
+        if (event.target.closest('a')) {
+          navLinks.classList.remove('is-open');
+          menuButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      const revealItems = document.querySelectorAll('.reveal');
+      if ('IntersectionObserver' in window && !reduceMotion) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: .12 });
+        revealItems.forEach((item) => observer.observe(item));
+      } else {
+        revealItems.forEach((item) => item.classList.add('is-visible'));
+      }
+      document.getElementById('year').textContent = new Date().getFullYear();
+    })();
+  </script>
 </body>
 </html>
