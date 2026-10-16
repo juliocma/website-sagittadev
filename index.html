@@ -17,7 +17,7 @@
       --orange: #f1843e;
       --orange-light: #ffbd73;
       --text: #f4f0f8;
-      --muted: #aaa2b5;
+      --muted: #c3bacd;
       --line: rgba(220, 205, 236, .12);
       --page-width: 1160px;
     }
@@ -58,12 +58,15 @@
     .menu-toggle { display: none; border: 1px solid var(--line); border-radius: 12px; color: var(--text); background: rgba(255,255,255,.04); padding: 9px 11px; font: inherit; cursor: pointer; }
     .hero { position: relative; min-height: 740px; min-height: min(850px, 100svh); display: grid; align-items: center; padding: 136px 0 78px; }
     .hero-grid { display: block; }
-    .hero-copy-block { max-width: 1040px; }
+    .hero-copy-block { position: relative; isolation: isolate; max-width: 1040px; }
+    .hero-copy-block::before { content: ""; position: absolute; z-index: -1; inset: -30px auto -28px -28px; width: min(780px, calc(100% + 56px)); pointer-events: none; background: radial-gradient(ellipse at 38% 48%, rgba(12, 7, 20, .84) 0%, rgba(12, 7, 20, .68) 48%, rgba(12, 7, 20, .28) 72%, transparent 100%); }
     .eyebrow { display: inline-flex; align-items: center; gap: 10px; color: var(--orange-light); font-size: .75rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
     .eyebrow::before { content: ""; width: 24px; height: 1px; background: var(--orange); box-shadow: 0 0 10px var(--orange); }
     h1 { max-width: 1040px; margin: 22px 0 20px; font-size: clamp(3.25rem, 6.8vw, 6rem); line-height: .99; letter-spacing: -.075em; font-weight: 760; }
-    h1 span { color: #c59dbd; text-shadow: 0 0 38px rgba(174,119,159,.17); }
+    h1 { -webkit-text-stroke: .45px rgba(10, 5, 18, .7); paint-order: stroke fill; text-shadow: 0 2px 3px rgba(10, 5, 18, .9), 0 0 20px rgba(10, 5, 18, .75); }
+    h1 span { color: #c59dbd; text-shadow: 0 2px 3px rgba(10, 5, 18, .9), 0 0 20px rgba(10, 5, 18, .75); }
     .hero-copy { max-width: 540px; margin: 0; color: var(--muted); font-size: clamp(1rem, 1.5vw, 1.13rem); }
+    .hero-copy, .section-heading p, .manifesto p { -webkit-text-stroke: .65px rgba(10, 5, 18, .92); paint-order: stroke fill; text-shadow: 0 1px 2px #0c0714, 0 0 5px rgba(12, 7, 20, .98), 0 0 16px rgba(12, 7, 20, .9); }
     .hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 32px; }
     .button { display: inline-flex; align-items: center; justify-content: center; gap: 11px; min-height: 51px; padding: 0 21px; border: 1px solid transparent; border-radius: 999px; font-size: .91rem; font-weight: 720; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
     .button:hover { transform: translateY(-3px); }
@@ -282,6 +285,7 @@
       routeLines.forEach((line) => line.setAttribute('pathLength', '100'));
       if (compactScreen) {
         map.querySelector('.constellation-lines').setAttribute('transform', 'translate(-576 0) scale(1.8 1)');
+        document.querySelector('.space-glow').hidden = true;
       }
       let stars = [];
       let scatteredStars = [];
@@ -290,7 +294,6 @@
       let frame = 0;
       let galaxyTexture;
       let journeyProgress = 0;
-      let lastDrawTime = 0;
       const pointer = { x: .5, y: .5 };
       if (!compactScreen) {
         window.addEventListener('pointermove', (event) => {
@@ -354,36 +357,38 @@
         canvas.width = width * ratio;
         canvas.height = height * ratio;
         context.setTransform(ratio, 0, 0, ratio, 0, 0);
-        galaxyTexture = document.createElement('canvas');
-        galaxyTexture.width = width;
-        galaxyTexture.height = height;
-        const galaxyContext = galaxyTexture.getContext('2d');
-        galaxyContext.save();
-        galaxyContext.globalCompositeOperation = 'screen';
-        galaxyContext.translate(width / 2, height / 2);
-        galaxyContext.rotate(-.065);
-        const cloudColors = [
-          [91, 79, 193], [104, 79, 190], [87, 103, 211],
-          [134, 85, 174], [163, 99, 170], [75, 108, 180]
-        ];
-        const cloudCount = compactScreen ? 32 : 96;
-        for (let i = 0; i < cloudCount; i += 1) {
-          const x = Math.random() * width - width / 2;
-          const y = (Math.random() * 2 - 1) * height * .16;
-          const radiusX = width * (.025 + Math.random() * .12);
-          const radiusY = height * (.008 + Math.random() * .045);
-          const color = cloudColors[Math.floor(Math.random() * cloudColors.length)];
-          const alpha = .012 + Math.random() * .034;
-          const cloud = galaxyContext.createRadialGradient(x, y, 0, x, y, radiusX);
-          cloud.addColorStop(0, `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`);
-          cloud.addColorStop(.55, `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha * .4})`);
-          cloud.addColorStop(1, `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0)`);
-          galaxyContext.fillStyle = cloud;
-          galaxyContext.beginPath();
-          galaxyContext.ellipse(x, y, radiusX, radiusY, Math.random() * .5 - .25, 0, Math.PI * 2);
-          galaxyContext.fill();
+        galaxyTexture = null;
+        if (!compactScreen) {
+          galaxyTexture = document.createElement('canvas');
+          galaxyTexture.width = width;
+          galaxyTexture.height = height;
+          const galaxyContext = galaxyTexture.getContext('2d');
+          galaxyContext.save();
+          galaxyContext.globalCompositeOperation = 'screen';
+          galaxyContext.translate(width / 2, height / 2);
+          galaxyContext.rotate(-.065);
+          const cloudColors = [
+            [91, 79, 193], [104, 79, 190], [87, 103, 211],
+            [134, 85, 174], [163, 99, 170], [75, 108, 180]
+          ];
+          for (let i = 0; i < 96; i += 1) {
+            const x = Math.random() * width - width / 2;
+            const y = (Math.random() * 2 - 1) * height * .16;
+            const radiusX = width * (.025 + Math.random() * .12);
+            const radiusY = height * (.008 + Math.random() * .045);
+            const color = cloudColors[Math.floor(Math.random() * cloudColors.length)];
+            const alpha = .012 + Math.random() * .034;
+            const cloud = galaxyContext.createRadialGradient(x, y, 0, x, y, radiusX);
+            cloud.addColorStop(0, `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`);
+            cloud.addColorStop(.55, `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha * .4})`);
+            cloud.addColorStop(1, `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0)`);
+            galaxyContext.fillStyle = cloud;
+            galaxyContext.beginPath();
+            galaxyContext.ellipse(x, y, radiusX, radiusY, Math.random() * .5 - .25, 0, Math.PI * 2);
+            galaxyContext.fill();
+          }
+          galaxyContext.restore();
         }
-        galaxyContext.restore();
         const count = Math.min(compactScreen ? 520 : 3200, Math.floor(width * height / (compactScreen ? 1250 : 600)));
         stars = Array.from({ length: count }, () => {
           const x = Math.random() * width;
@@ -410,11 +415,6 @@
         }));
       }
       function draw(timestamp = 0) {
-        if (compactScreen && !reduceMotion && timestamp - lastDrawTime < 32) {
-          requestAnimationFrame(draw);
-          return;
-        }
-        lastDrawTime = timestamp;
         context.clearRect(0, 0, width, height);
         if (galaxyTexture) {
           const cloudDrift = reduceMotion ? 0 : Math.sin(frame * .0007) * 8;
@@ -451,15 +451,15 @@
           paintSixPointStar(mapOffsetX + mapX * mapScale, mapOffsetY + y * mapScale, mapRadius, '#ff9e4d', .12 + progress * .88);
         });
         context.globalAlpha = 1;
-        if (!reduceMotion) frame += 1;
-        if (!reduceMotion) requestAnimationFrame(draw);
+        if (!reduceMotion && !compactScreen) frame += 1;
+        if (!reduceMotion && !compactScreen) requestAnimationFrame(draw);
       }
       resize();
-      if (reduceMotion) draw();
+      if (reduceMotion || compactScreen) draw();
       else requestAnimationFrame(draw);
       window.addEventListener('resize', () => {
         resize();
-        if (reduceMotion) draw();
+        if (reduceMotion || compactScreen) draw();
       }, { passive: true });
       let scrollQueued = false;
       function updateJourney() {
@@ -473,7 +473,7 @@
             const lineProgress = Math.max(0, Math.min(1, progress * routeLines.length - index));
             line.style.strokeDashoffset = String(100 * (1 - lineProgress));
           });
-          if (reduceMotion) draw();
+          if (reduceMotion || compactScreen) draw();
           scrollQueued = false;
         });
       }
